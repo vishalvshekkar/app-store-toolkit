@@ -1,0 +1,33 @@
+{
+  "name": "appcraft",
+  "version": "0.1.0",
+  "description": "AI-powered App Store Connect metadata management — ASO copywriting, changelogs, localization, and two-way sync.",
+  "skills": [
+    "skills/setup/SKILL.md",
+    "skills/aso/SKILL.md",
+    "skills/changelog/SKILL.md",
+    "skills/iap/SKILL.md",
+    "skills/localize/SKILL.md",
+    "skills/push/SKILL.md",
+    "skills/pull/SKILL.md",
+    "skills/validate/SKILL.md",
+    "skills/score/SKILL.md",
+    "skills/list/SKILL.md",
+    "skills/status/SKILL.md",
+    "skills/competitors/SKILL.md",
+    "skills/reviews/SKILL.md",
+    "skills/privacy/SKILL.md"
+  ],
+  "agents": [
+    "agents/aso-copywriter.md",
+    "agents/localizer.md"
+  ],
+  "mcpServers": {
+    "appstore-connect": {
+      "command": "node",
+      "args": ["servers/appstore-connect/dist/index.js"],
+      "cwd": "."
+    }
+  },
+  "hooks": "hooks/hooks.json"
+}

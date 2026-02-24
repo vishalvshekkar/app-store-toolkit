@@ -1,0 +1,18 @@
+{
+  "hooks": [
+    {
+      "type": "PostToolUse",
+      "matcher": {
+        "tool_name": "Write|Edit",
+        "file_path": ".appstore/metadata/**"
+      },
+      "command": "bash scripts/validate-metadata.sh \"$FILE_PATH\"",
+      "description": "Validate metadata after file edits"
+    },
+    {
+      "type": "SessionStart",
+      "command": "bash scripts/session-status.sh",
+      "description": "Show app status on session start"
+    }
+  ]
+}
