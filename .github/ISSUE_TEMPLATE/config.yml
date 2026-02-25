@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question
+    url: https://github.com/vishalvshekkar/app-store-toolkit/discussions/categories/q-a
+    about: Ask questions in GitHub Discussions
+  - name: Ideas
+    url: https://github.com/vishalvshekkar/app-store-toolkit/discussions/categories/ideas
+    about: Share ideas and suggestions

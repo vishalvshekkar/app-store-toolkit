@@ -159,6 +159,14 @@ Multi-platform apps are supported — each platform gets its own version-level m
 
 **Character limit errors**: Run `/app-store-toolkit:validate` to see which fields exceed limits. Use `/app-store-toolkit:aso` to regenerate with proper constraints.
 
+## Roadmap
+
+See [ROADMAP.md](ROADMAP.md) for what's planned.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for setup instructions and guidelines.
+
 ## License
 
 MIT
