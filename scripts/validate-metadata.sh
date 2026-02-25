@@ -25,7 +25,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SERVER_DIR="$SCRIPT_DIR/../servers/appstore-connect"
 
 if [ ! -f "$SERVER_DIR/dist/index.js" ]; then
-  echo "appcraft: MCP server not built. Run: cd servers/appstore-connect && npm run build"
+  echo "app-store-toolkit: MCP server not built. Run: cd servers/appstore-connect && npm run build"
   exit 0
 fi
 

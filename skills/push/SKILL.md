@@ -1,5 +1,5 @@
 ---
-name: appcraft:push
+name: app-store-toolkit:push
 description: Push local metadata to App Store Connect
 arguments:
   - name: locale
@@ -14,7 +14,7 @@ arguments:
 user_invocable: true
 ---
 
-# /appcraft:push
+# /app-store-toolkit:push
 
 You are pushing local metadata to App Store Connect. This modifies live App Store data.
 
@@ -24,14 +24,14 @@ You are pushing local metadata to App Store Connect. This modifies live App Stor
 
 Call `store_read_config` to get app_id, locales, and platforms.
 
-If no config or no app_id, tell the user to run `/appcraft:setup` or `/appcraft:pull` first.
+If no config or no app_id, tell the user to run `/app-store-toolkit:setup` or `/app-store-toolkit:pull` first.
 
 ### 2. Validate Before Push
 
 Call `store_validate` to check all fields against character limits.
 
 If ANY field exceeds its limit, **stop and warn the user**. Do not push invalid data.
-Suggest running `/appcraft:validate` and fixing issues first.
+Suggest running `/app-store-toolkit:validate` and fixing issues first.
 
 ### 3. Compute Changes
 
@@ -94,5 +94,5 @@ Push complete:
 
 ### 7. Suggest Next Steps
 
-- "Run `/appcraft:status` to verify sync state"
-- "Run `/appcraft:pull` to confirm remote matches local"
+- "Run `/app-store-toolkit:status` to verify sync state"
+- "Run `/app-store-toolkit:pull` to confirm remote matches local"

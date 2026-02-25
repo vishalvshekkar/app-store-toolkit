@@ -1,10 +1,10 @@
-# appcraft — Claude Code Plugin for App Store Connect
+# app-store-toolkit — Claude Code Plugin for App Store Connect
 
 ## What This Is
 
-appcraft is a Claude Code plugin that manages App Store Connect metadata with AI. It provides slash commands for ASO-optimized copywriting, changelogs, IAP descriptions, localization, and two-way sync with the App Store Connect API.
+app-store-toolkit is a Claude Code plugin that manages App Store Connect metadata with AI. It provides slash commands for ASO-optimized copywriting, changelogs, IAP descriptions, localization, and two-way sync with the App Store Connect API.
 
-**All commands use the `appcraft` prefix:** `/appcraft:setup`, `/appcraft:aso`, `/appcraft:push`, etc.
+**All commands use the `app-store-toolkit` prefix:** `/app-store-toolkit:setup`, `/app-store-toolkit:aso`, `/app-store-toolkit:push`, etc.
 
 ## Architecture
 
@@ -37,7 +37,7 @@ All content fields use `FieldWithHistory` — an append-only iteration log with 
 
 ## Voice & Tone System
 
-Configured during `/appcraft:setup`, stored in `config.json`. Applied to ALL generated content.
+Configured during `/app-store-toolkit:setup`, stored in `config.json`. Applied to ALL generated content.
 
 **Presets:** Professional, Casual, Playful, Technical, Minimal, Witty, Custom
 
@@ -71,20 +71,20 @@ When generating content, gather context from (priority order):
 
 | Command                | Purpose                                      |
 |------------------------|----------------------------------------------|
-| `/appcraft:setup`      | Configure bundle ID, credentials, voice/tone |
-| `/appcraft:aso`        | Generate ASO-optimized metadata              |
-| `/appcraft:changelog`  | Generate release notes from git or manual    |
-| `/appcraft:iap`        | Generate IAP display names and descriptions  |
-| `/appcraft:localize`   | Translate metadata to configured locales     |
-| `/appcraft:push`       | Sync local metadata to App Store Connect     |
-| `/appcraft:pull`       | Fetch metadata from App Store Connect        |
-| `/appcraft:validate`   | Validate all metadata against char limits    |
-| `/appcraft:score`      | ASO quality score (0-100)                    |
-| `/appcraft:list`       | List metadata, descriptions, changelogs, etc |
-| `/appcraft:status`     | Show sync status (local vs remote diff)      |
-| `/appcraft:competitors`| Analyze competitor App Store listings        |
-| `/appcraft:reviews`    | List reviews, draft and post responses       |
-| `/appcraft:privacy`    | Analyze code for App Privacy nutrition labels|
+| `/app-store-toolkit:setup`      | Configure bundle ID, credentials, voice/tone |
+| `/app-store-toolkit:aso`        | Generate ASO-optimized metadata              |
+| `/app-store-toolkit:changelog`  | Generate release notes from git or manual    |
+| `/app-store-toolkit:iap`        | Generate IAP display names and descriptions  |
+| `/app-store-toolkit:localize`   | Translate metadata to configured locales     |
+| `/app-store-toolkit:push`       | Sync local metadata to App Store Connect     |
+| `/app-store-toolkit:pull`       | Fetch metadata from App Store Connect        |
+| `/app-store-toolkit:validate`   | Validate all metadata against char limits    |
+| `/app-store-toolkit:score`      | ASO quality score (0-100)                    |
+| `/app-store-toolkit:list`       | List metadata, descriptions, changelogs, etc |
+| `/app-store-toolkit:status`     | Show sync status (local vs remote diff)      |
+| `/app-store-toolkit:competitors`| Analyze competitor App Store listings        |
+| `/app-store-toolkit:reviews`    | List reviews, draft and post responses       |
+| `/app-store-toolkit:privacy`    | Analyze code for App Privacy nutrition labels|
 
 ## Tech Stack
 

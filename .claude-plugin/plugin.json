@@ -1,5 +1,5 @@
 {
-  "name": "appcraft",
+  "name": "app-store-toolkit",
   "version": "0.1.0",
   "description": "AI-powered App Store Connect metadata management — ASO copywriting, changelogs, localization, and two-way sync.",
   "skills": [
@@ -25,8 +25,8 @@
   "mcpServers": {
     "appstore-connect": {
       "command": "node",
-      "args": ["servers/appstore-connect/dist/index.js"],
-      "cwd": "."
+      "args": ["${CLAUDE_PLUGIN_ROOT}/servers/appstore-connect/dist/index.js"],
+      "cwd": "${CLAUDE_PLUGIN_ROOT}"
     }
   },
   "hooks": "hooks/hooks.json"

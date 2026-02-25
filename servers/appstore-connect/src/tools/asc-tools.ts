@@ -25,7 +25,7 @@ function noCredentialsError() {
     content: [
       {
         type: "text" as const,
-        text: "No API credentials configured. Run /appcraft:setup to add your App Store Connect API key.",
+        text: "No API credentials configured. Run /app-store-toolkit:setup to add your App Store Connect API key.",
       },
     ],
     isError: true,

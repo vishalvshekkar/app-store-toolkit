@@ -1,5 +1,5 @@
 ---
-name: appcraft:status
+name: app-store-toolkit:status
 description: Show sync status between local metadata and App Store Connect
 arguments:
   - name: locale
@@ -8,7 +8,7 @@ arguments:
 user_invocable: true
 ---
 
-# /appcraft:status
+# /app-store-toolkit:status
 
 You are showing the sync status between local metadata and App Store Connect.
 
@@ -41,7 +41,7 @@ For each field, read the local latest content using `store_read_metadata` and co
 ### 4. Display Status
 
 ```
-appcraft status — com.company.myapp (IOS)
+app-store-toolkit status — com.company.myapp (IOS)
 ═══════════════════════════════════════════════════════
 Locale: en-US
   =  name                "My Amazing App"
@@ -53,7 +53,7 @@ Locale: en-US
 
 Locale: ja
   =  name                "マイアプリ"
-  <  description         (remote newer — run /appcraft:pull)
+  <  description         (remote newer — run /app-store-toolkit:pull)
   -  promotional_text    (remote only)
 
 Summary: 8 in sync, 2 local newer, 1 remote newer, 0 conflicts
@@ -63,7 +63,7 @@ Summary: 8 in sync, 2 local newer, 1 remote newer, 0 conflicts
 ### 5. Suggest Actions
 
 Based on the status:
-- If local_newer exists: "Run `/appcraft:push` to sync your changes"
-- If remote_newer exists: "Run `/appcraft:pull` to fetch remote updates"
+- If local_newer exists: "Run `/app-store-toolkit:push` to sync your changes"
+- If remote_newer exists: "Run `/app-store-toolkit:pull` to fetch remote updates"
 - If conflicts exist: "Review conflicts and decide which version to keep"
 - If all in sync: "Everything is in sync with App Store Connect"

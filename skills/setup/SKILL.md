@@ -1,6 +1,6 @@
 ---
-name: appcraft:setup
-description: Configure appcraft with your app's bundle ID, API credentials, voice/tone preferences, and locale settings
+name: app-store-toolkit:setup
+description: Configure app-store-toolkit with your app's bundle ID, API credentials, voice/tone preferences, and locale settings
 arguments:
   - name: bundle_id
     description: Your app's bundle identifier (e.g., com.company.app)
@@ -8,9 +8,9 @@ arguments:
 user_invocable: true
 ---
 
-# /appcraft:setup
+# /app-store-toolkit:setup
 
-You are setting up the appcraft plugin for App Store Connect metadata management.
+You are setting up the app-store-toolkit plugin for App Store Connect metadata management.
 
 ## Steps
 
@@ -49,7 +49,7 @@ Ask if they want to add additional locales beyond the primary. Show a list of co
 - de-DE, fr-FR, es-ES, it, pt-BR (European/Latin American)
 - ar-SA, hi, th (Other)
 
-They can always add more later with `/appcraft:localize`.
+They can always add more later with `/app-store-toolkit:localize`.
 
 ### 6. Configure Voice & Tone
 
@@ -81,7 +81,7 @@ Ask the user for their App Store Connect API credentials:
 Explain:
 - These are stored locally in `.appstore/config.local.json` which is automatically gitignored
 - The recommended API key role is **App Manager**
-- They can skip this step and add credentials later (some features like `/appcraft:aso` work without API access)
+- They can skip this step and add credentials later (some features like `/app-store-toolkit:aso` work without API access)
 
 If they provide credentials, save them with `store_write_local_config`.
 
@@ -100,6 +100,6 @@ Display a summary of what was configured:
 - Data directory: `.appstore/`
 
 Suggest next steps:
-- If API configured: "Run `/appcraft:pull` to fetch your existing App Store metadata"
-- If no existing metadata: "Run `/appcraft:aso` to generate ASO-optimized metadata"
-- "Run `/appcraft:list metadata` to see your current metadata"
+- If API configured: "Run `/app-store-toolkit:pull` to fetch your existing App Store metadata"
+- If no existing metadata: "Run `/app-store-toolkit:aso` to generate ASO-optimized metadata"
+- "Run `/app-store-toolkit:list metadata` to see your current metadata"

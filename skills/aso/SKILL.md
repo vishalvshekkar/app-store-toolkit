@@ -1,5 +1,5 @@
 ---
-name: appcraft:aso
+name: app-store-toolkit:aso
 description: Generate ASO-optimized App Store metadata (name, subtitle, keywords, description, promotional text)
 arguments:
   - name: fields
@@ -11,7 +11,7 @@ arguments:
 user_invocable: true
 ---
 
-# /appcraft:aso
+# /app-store-toolkit:aso
 
 You are generating ASO-optimized App Store metadata. Use the **ASO Copywriter** agent persona from `agents/aso-copywriter.md`.
 
@@ -24,7 +24,7 @@ Call `store_read_config` to get:
 - Primary locale
 - Voice/tone settings (CRITICAL — all content must match the configured voice)
 
-If no config exists, tell the user to run `/appcraft:setup` first.
+If no config exists, tell the user to run `/app-store-toolkit:setup` first.
 
 ### 2. Load Existing Metadata
 
@@ -109,7 +109,7 @@ For each approved field, call `store_write_metadata` with:
 ### 9. Suggest Next Steps
 
 After saving:
-- "Run `/appcraft:validate` to double-check all limits"
-- "Run `/appcraft:localize` to translate to your other configured locales"
-- "Run `/appcraft:push` to sync to App Store Connect"
-- "Run `/appcraft:list metadata` to see the full metadata summary"
+- "Run `/app-store-toolkit:validate` to double-check all limits"
+- "Run `/app-store-toolkit:localize` to translate to your other configured locales"
+- "Run `/app-store-toolkit:push` to sync to App Store Connect"
+- "Run `/app-store-toolkit:list metadata` to see the full metadata summary"

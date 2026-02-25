@@ -1,4 +1,4 @@
-# appcraft Technical Specification
+# app-store-toolkit Technical Specification
 
 Detailed technical reference for all design decisions, data formats, and API integration details.
 
@@ -160,7 +160,7 @@ Auth is account-wide, but all operations are filtered by configured `app_id` (re
 ## Changelog Mechanics
 
 ### Version Range Detection (priority order)
-1. **User specifies range:** `/appcraft:changelog v1.0..v2.0`
+1. **User specifies range:** `/app-store-toolkit:changelog v1.0..v2.0`
 2. **Git tags:** `git tag --sort=-version:refname` → latest two tags as range
 3. **Existing release_notes:** Latest version file → prompt for new version
 4. **Fallback:** Ask user for version and changes

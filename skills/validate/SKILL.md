@@ -1,5 +1,5 @@
 ---
-name: appcraft:validate
+name: app-store-toolkit:validate
 description: Validate all metadata against Apple's character limits
 arguments:
   - name: locale
@@ -11,7 +11,7 @@ arguments:
 user_invocable: true
 ---
 
-# /appcraft:validate
+# /app-store-toolkit:validate
 
 You are validating App Store metadata against Apple's character limits.
 
@@ -60,7 +60,7 @@ Result: 1 of 5 fields exceed limits
 
 For any FAIL results:
 - Show the current content
-- Suggest running `/appcraft:aso` to regenerate with proper constraints
+- Suggest running `/app-store-toolkit:aso` to regenerate with proper constraints
 - For minor overages (< 10 chars), suggest specific edits to trim
 
 ### 5. Multi-Locale Summary

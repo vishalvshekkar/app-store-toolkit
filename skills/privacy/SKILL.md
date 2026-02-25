@@ -1,5 +1,5 @@
 ---
-name: appcraft:privacy
+name: app-store-toolkit:privacy
 description: Analyze code to help generate App Privacy nutrition labels
 arguments:
   - name: path
@@ -8,7 +8,7 @@ arguments:
 user_invocable: true
 ---
 
-# /appcraft:privacy
+# /app-store-toolkit:privacy
 
 You are analyzing the app's source code to help generate the App Privacy "nutrition label" required by Apple.
 

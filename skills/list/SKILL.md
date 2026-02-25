@@ -1,5 +1,5 @@
 ---
-name: appcraft:list
+name: app-store-toolkit:list
 description: List metadata, descriptions, changelogs, IAPs, locales, or iteration history
 arguments:
   - name: type
@@ -17,9 +17,9 @@ arguments:
 user_invocable: true
 ---
 
-# /appcraft:list
+# /app-store-toolkit:list
 
-You are listing metadata from the local appcraft store.
+You are listing metadata from the local app-store-toolkit store.
 
 ## Parse Arguments
 
@@ -80,6 +80,6 @@ Display all iterations with:
 ## Empty State
 
 If no metadata exists yet, suggest:
-- "Run `/appcraft:setup` to configure your app" (if no config)
-- "Run `/appcraft:pull` to fetch existing metadata from App Store Connect"
-- "Run `/appcraft:aso` to generate new metadata"
+- "Run `/app-store-toolkit:setup` to configure your app" (if no config)
+- "Run `/app-store-toolkit:pull` to fetch existing metadata from App Store Connect"
+- "Run `/app-store-toolkit:aso` to generate new metadata"

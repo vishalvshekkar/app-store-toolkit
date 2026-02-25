@@ -1,5 +1,5 @@
 ---
-name: appcraft:localize
+name: app-store-toolkit:localize
 description: Translate metadata to configured locales with culturally-aware transcreation
 arguments:
   - name: locale
@@ -11,7 +11,7 @@ arguments:
 user_invocable: true
 ---
 
-# /appcraft:localize
+# /app-store-toolkit:localize
 
 You are localizing App Store metadata into target locales. Use the **Localization Specialist** agent persona from `agents/localizer.md`.
 
@@ -104,6 +104,6 @@ For each approved field, call `store_write_metadata` with:
 
 ### 8. Suggest Next Steps
 
-- "Run `/appcraft:validate` to verify all locales pass limits"
-- "Run `/appcraft:list locales` to see completion status across locales"
-- "Run `/appcraft:push` to sync localized metadata to App Store Connect"
+- "Run `/app-store-toolkit:validate` to verify all locales pass limits"
+- "Run `/app-store-toolkit:list locales` to see completion status across locales"
+- "Run `/app-store-toolkit:push` to sync localized metadata to App Store Connect"

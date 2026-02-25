@@ -1,5 +1,5 @@
 ---
-name: appcraft:iap
+name: app-store-toolkit:iap
 description: Generate or manage in-app purchase display names and descriptions
 arguments:
   - name: product_id
@@ -11,7 +11,7 @@ arguments:
 user_invocable: true
 ---
 
-# /appcraft:iap
+# /app-store-toolkit:iap
 
 You are generating or managing in-app purchase (IAP) metadata.
 
@@ -86,6 +86,6 @@ On approval, call `store_write_metadata` for each field:
 
 ### 8. Suggest Next Steps
 
-- "Run `/appcraft:localize` to translate IAP copy to other locales"
-- "Run `/appcraft:list iap` to see all IAP products"
-- "Run `/appcraft:push` to sync to App Store Connect"
+- "Run `/app-store-toolkit:localize` to translate IAP copy to other locales"
+- "Run `/app-store-toolkit:list iap` to see all IAP products"
+- "Run `/app-store-toolkit:push` to sync to App Store Connect"

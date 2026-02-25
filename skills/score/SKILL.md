@@ -1,5 +1,5 @@
 ---
-name: appcraft:score
+name: app-store-toolkit:score
 description: Get an ASO quality score (0-100) with improvement suggestions
 arguments:
   - name: locale
@@ -8,7 +8,7 @@ arguments:
 user_invocable: true
 ---
 
-# /appcraft:score
+# /app-store-toolkit:score
 
 You are scoring the ASO quality of the app's metadata and providing actionable improvement suggestions.
 
@@ -81,5 +81,5 @@ For each improvement, give concrete actionable advice:
 
 ### 5. Suggest Next Steps
 
-- "Run `/appcraft:aso` to regenerate improved metadata"
-- "Run `/appcraft:localize` to add missing locale support"
+- "Run `/app-store-toolkit:aso` to regenerate improved metadata"
+- "Run `/app-store-toolkit:localize` to add missing locale support"

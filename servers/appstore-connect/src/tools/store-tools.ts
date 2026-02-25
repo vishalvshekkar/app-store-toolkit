@@ -125,7 +125,7 @@ export function registerStoreTools(server: McpServer): void {
             content: [
               {
                 type: "text" as const,
-                text: "No config found. Run /appcraft:setup first.",
+                text: "No config found. Run /app-store-toolkit:setup first.",
               },
             ],
             isError: true,
@@ -225,7 +225,7 @@ export function registerStoreTools(server: McpServer): void {
             content: [
               {
                 type: "text" as const,
-                text: "No config found. Run /appcraft:setup first.",
+                text: "No config found. Run /app-store-toolkit:setup first.",
               },
             ],
             isError: true,
@@ -372,7 +372,7 @@ export function registerStoreTools(server: McpServer): void {
   // --- store_read_config ---
   server.tool(
     "store_read_config",
-    "Read the current appcraft configuration",
+    "Read the current app-store-toolkit configuration",
     StoreReadConfigSchema.shape,
     async () => {
       try {
@@ -380,7 +380,7 @@ export function registerStoreTools(server: McpServer): void {
         if (!config) {
           return {
             content: [
-              { type: "text" as const, text: "No config found. Run /appcraft:setup first." },
+              { type: "text" as const, text: "No config found. Run /app-store-toolkit:setup first." },
             ],
           };
         }
@@ -401,7 +401,7 @@ export function registerStoreTools(server: McpServer): void {
   // --- store_write_config ---
   server.tool(
     "store_write_config",
-    "Write or update the appcraft configuration (config.json)",
+    "Write or update the app-store-toolkit configuration (config.json)",
     StoreWriteConfigSchema.shape,
     async (params) => {
       try {

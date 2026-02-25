@@ -6,7 +6,7 @@ set -euo pipefail
 CONFIG_FILE=".appstore/config.json"
 
 if [ ! -f "$CONFIG_FILE" ]; then
-  echo "appcraft: Not configured. Run /appcraft:setup to get started."
+  echo "app-store-toolkit: Not configured. Run /app-store-toolkit:setup to get started."
   exit 0
 fi
 
@@ -22,4 +22,4 @@ if [ -f ".appstore/config.local.json" ]; then
   HAS_CREDS="yes"
 fi
 
-echo "appcraft: $BUNDLE_ID | $PLATFORMS | ${LOCALES} locales | voice: $VOICE | API: $HAS_CREDS"
+echo "app-store-toolkit: $BUNDLE_ID | $PLATFORMS | ${LOCALES} locales | voice: $VOICE | API: $HAS_CREDS"

@@ -1,5 +1,5 @@
 ---
-name: appcraft:competitors
+name: app-store-toolkit:competitors
 description: Analyze competitor App Store listings for ASO insights
 arguments:
   - name: query
@@ -8,7 +8,7 @@ arguments:
 user_invocable: true
 ---
 
-# /appcraft:competitors
+# /app-store-toolkit:competitors
 
 You are analyzing competitor App Store listings to provide ASO insights.
 
@@ -81,5 +81,5 @@ Recommendations:
 
 ### 5. Suggest Next Steps
 
-- "Run `/appcraft:aso` to regenerate metadata with competitive insights"
-- "Run `/appcraft:score` to see your updated ASO score"
+- "Run `/app-store-toolkit:aso` to regenerate metadata with competitive insights"
+- "Run `/app-store-toolkit:score` to see your updated ASO score"

@@ -29,7 +29,7 @@ export async function getToken(): Promise<string> {
   const localConfig = await readLocalConfig();
   if (!localConfig) {
     throw new Error(
-      "No API credentials configured. Run /appcraft:setup to add your App Store Connect API key."
+      "No API credentials configured. Run /app-store-toolkit:setup to add your App Store Connect API key."
     );
   }
 

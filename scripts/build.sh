@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# Build the appcraft MCP server
+# Build the app-store-toolkit MCP server
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SERVER_DIR="$SCRIPT_DIR/../servers/appstore-connect"
 
-echo "Building appcraft MCP server..."
+echo "Building app-store-toolkit MCP server..."
 
 cd "$SERVER_DIR"
 

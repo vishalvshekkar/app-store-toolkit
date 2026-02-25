@@ -1,5 +1,5 @@
 ---
-name: appcraft:changelog
+name: app-store-toolkit:changelog
 description: Generate release notes from git history or manual input
 arguments:
   - name: range
@@ -11,7 +11,7 @@ arguments:
 user_invocable: true
 ---
 
-# /appcraft:changelog
+# /app-store-toolkit:changelog
 
 You are generating release notes (What's New) for an app version.
 
@@ -101,5 +101,5 @@ On approval, call `store_write_metadata` with:
 
 ### 8. Suggest Next Steps
 
-- "Run `/appcraft:localize` to translate release notes to other locales"
-- "Run `/appcraft:push` to sync to App Store Connect"
+- "Run `/app-store-toolkit:localize` to translate release notes to other locales"
+- "Run `/app-store-toolkit:push` to sync to App Store Connect"

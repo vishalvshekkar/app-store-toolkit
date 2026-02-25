@@ -1,5 +1,5 @@
 ---
-name: appcraft:reviews
+name: app-store-toolkit:reviews
 description: View customer reviews and draft responses
 arguments:
   - name: action
@@ -14,7 +14,7 @@ arguments:
 user_invocable: true
 ---
 
-# /appcraft:reviews
+# /app-store-toolkit:reviews
 
 You are managing customer reviews from App Store Connect.
 
@@ -23,7 +23,7 @@ You are managing customer reviews from App Store Connect.
 ### 1. Load Configuration
 
 Call `store_read_config` to get app_id and voice/tone settings.
-If no app_id, tell the user to run `/appcraft:setup` and `/appcraft:pull` first.
+If no app_id, tell the user to run `/app-store-toolkit:setup` and `/app-store-toolkit:pull` first.
 
 ### 2. Determine Action
 
@@ -114,4 +114,4 @@ then consider adding widgets for next release.
 
 - After list: "Say 'respond to [review]' to draft a response"
 - After respond: "Response posted to App Store Connect"
-- After analyze: "Use these insights when running `/appcraft:aso` or `/appcraft:changelog`"
+- After analyze: "Use these insights when running `/app-store-toolkit:aso` or `/app-store-toolkit:changelog`"

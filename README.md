@@ -1,4 +1,4 @@
-# appcraft
+# app-store-toolkit
 
 AI-powered App Store Connect metadata management for Claude Code.
 
@@ -16,7 +16,7 @@ Generate ASO-optimized app names, descriptions, keywords, changelogs, and IAP co
 
 ```bash
 # From the Claude Code plugin marketplace
-claude plugin marketplace add appcraft
+claude plugin marketplace add app-store-toolkit
 
 # Or install directly from this repo
 claude plugin install /path/to/apple-app-store-assistant
@@ -26,19 +26,19 @@ claude plugin install /path/to/apple-app-store-assistant
 
 ```bash
 # 1. Configure your app and credentials
-/appcraft:setup
+/app-store-toolkit:setup
 
 # 2. Pull existing metadata from App Store Connect
-/appcraft:pull
+/app-store-toolkit:pull
 
 # 3. Generate ASO-optimized metadata
-/appcraft:aso
+/app-store-toolkit:aso
 
 # 4. Preview what changed
-/appcraft:status
+/app-store-toolkit:status
 
 # 5. Push to App Store Connect
-/appcraft:push
+/app-store-toolkit:push
 ```
 
 ## Commands
@@ -47,44 +47,44 @@ claude plugin install /path/to/apple-app-store-assistant
 
 | Command | Description |
 |---------|-------------|
-| `/appcraft:setup` | Configure bundle ID, API credentials, voice/tone, and locales |
+| `/app-store-toolkit:setup` | Configure bundle ID, API credentials, voice/tone, and locales |
 
 ### Content Generation
 
 | Command | Description |
 |---------|-------------|
-| `/appcraft:aso` | Generate ASO-optimized name, subtitle, keywords, description, and promo text |
-| `/appcraft:changelog` | Generate release notes from git history or manual input |
-| `/appcraft:iap` | Generate in-app purchase display names and descriptions |
-| `/appcraft:localize` | Translate metadata to all configured locales |
+| `/app-store-toolkit:aso` | Generate ASO-optimized name, subtitle, keywords, description, and promo text |
+| `/app-store-toolkit:changelog` | Generate release notes from git history or manual input |
+| `/app-store-toolkit:iap` | Generate in-app purchase display names and descriptions |
+| `/app-store-toolkit:localize` | Translate metadata to all configured locales |
 
 ### Sync & Status
 
 | Command | Description |
 |---------|-------------|
-| `/appcraft:push` | Push local metadata to App Store Connect |
-| `/appcraft:pull` | Pull metadata from App Store Connect |
-| `/appcraft:status` | Show sync status between local and remote |
+| `/app-store-toolkit:push` | Push local metadata to App Store Connect |
+| `/app-store-toolkit:pull` | Pull metadata from App Store Connect |
+| `/app-store-toolkit:status` | Show sync status between local and remote |
 
 ### Analysis & Review
 
 | Command | Description |
 |---------|-------------|
-| `/appcraft:validate` | Validate all metadata against Apple's character limits |
-| `/appcraft:score` | Get an ASO quality score (0-100) with improvement suggestions |
-| `/appcraft:competitors` | Analyze competitor App Store listings |
-| `/appcraft:reviews` | View customer reviews and draft responses |
-| `/appcraft:privacy` | Analyze code to help generate App Privacy nutrition labels |
+| `/app-store-toolkit:validate` | Validate all metadata against Apple's character limits |
+| `/app-store-toolkit:score` | Get an ASO quality score (0-100) with improvement suggestions |
+| `/app-store-toolkit:competitors` | Analyze competitor App Store listings |
+| `/app-store-toolkit:reviews` | View customer reviews and draft responses |
+| `/app-store-toolkit:privacy` | Analyze code to help generate App Privacy nutrition labels |
 
 ### Browsing & History
 
 | Command | Description |
 |---------|-------------|
-| `/appcraft:list` | List metadata, descriptions, changelogs, IAPs, locales, or history |
+| `/app-store-toolkit:list` | List metadata, descriptions, changelogs, IAPs, locales, or history |
 
 ## Configuration
 
-After running `/appcraft:setup`, two config files are created:
+After running `/app-store-toolkit:setup`, two config files are created:
 
 **`.appstore/config.json`** (committed to git):
 ```json
@@ -138,14 +138,14 @@ Multi-platform apps are supported — each platform gets its own version-level m
 
 39 App Store Connect locales supported. Content generation follows an English-first workflow:
 1. Generate content in your primary locale
-2. Run `/appcraft:localize` for culturally-aware transcreation (not literal translation)
+2. Run `/app-store-toolkit:localize` for culturally-aware transcreation (not literal translation)
 3. Keywords are researched per-locale, not just translated
 
 ## How Authentication Works
 
 1. Create an API key in App Store Connect (Users and Access > Integrations > Team Keys)
 2. Download the `.p8` private key file
-3. Run `/appcraft:setup` and provide your Key ID, Issuer ID, and path to the `.p8` file
+3. Run `/app-store-toolkit:setup` and provide your Key ID, Issuer ID, and path to the `.p8` file
 4. The plugin generates short-lived JWT tokens (refreshed every 10 minutes) for API calls
 5. Credentials are stored locally in `.appstore/config.local.json` (automatically gitignored)
 
@@ -157,7 +157,7 @@ Multi-platform apps are supported — each platform gets its own version-level m
 
 **"Rate limited"**: The App Store Connect API allows ~300 requests per minute. The plugin handles 429 responses with automatic backoff. Wait a moment and retry.
 
-**Character limit errors**: Run `/appcraft:validate` to see which fields exceed limits. Use `/appcraft:aso` to regenerate with proper constraints.
+**Character limit errors**: Run `/app-store-toolkit:validate` to see which fields exceed limits. Use `/app-store-toolkit:aso` to regenerate with proper constraints.
 
 ## License
 

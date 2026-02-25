@@ -1,5 +1,5 @@
 ---
-name: appcraft:pull
+name: app-store-toolkit:pull
 description: Fetch metadata from App Store Connect and save to local store
 arguments:
   - name: locale
@@ -11,7 +11,7 @@ arguments:
 user_invocable: true
 ---
 
-# /appcraft:pull
+# /app-store-toolkit:pull
 
 You are pulling metadata from App Store Connect into the local `.appstore/` store.
 
@@ -21,7 +21,7 @@ You are pulling metadata from App Store Connect into the local `.appstore/` stor
 
 Call `store_read_config` to get app_id, configured locales, and platforms.
 
-If no config exists, tell the user to run `/appcraft:setup` first.
+If no config exists, tell the user to run `/app-store-toolkit:setup` first.
 If no app_id is set, first resolve it:
 - Call `asc_get_app` with the configured bundle_id
 - Save the returned app_id to config with `store_write_config`
@@ -79,6 +79,6 @@ IAPs pulled: 2 (premium_monthly, premium_yearly)
 
 ### 6. Suggest Next Steps
 
-- "Run `/appcraft:list metadata` to see all pulled data"
-- "Run `/appcraft:aso` to generate improved metadata"
-- "Run `/appcraft:validate` to check character limits"
+- "Run `/app-store-toolkit:list metadata` to see all pulled data"
+- "Run `/app-store-toolkit:aso` to generate improved metadata"
+- "Run `/app-store-toolkit:validate` to check character limits"
