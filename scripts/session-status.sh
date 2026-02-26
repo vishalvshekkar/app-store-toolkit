@@ -1,25 +1,42 @@
 #!/usr/bin/env bash
 # SessionStart hook: Show brief app status on session start
+# Receives JSON on stdin with: session_id, transcript_path, cwd, permission_mode, hook_event_name
 
 set -euo pipefail
 
-CONFIG_FILE=".appstore/config.json"
+# Read hook input from stdin
+INPUT=$(cat)
+
+# Extract CWD from hook input JSON
+CWD=$(node -e "try{console.log(JSON.parse(process.argv[1]).cwd||'')}catch(e){console.log('')}" "$INPUT" 2>/dev/null || echo "")
+
+if [ -z "$CWD" ]; then
+  CWD="$(pwd)"
+fi
+
+CONFIG_FILE="$CWD/.appstore/config.json"
+LOCAL_CONFIG="$CWD/.appstore/config.local.json"
 
 if [ ! -f "$CONFIG_FILE" ]; then
   echo "app-store-toolkit: Not configured. Run /app-store-toolkit:setup to get started."
   exit 0
 fi
 
-# Parse config for basic info
-BUNDLE_ID=$(node -e "const c=JSON.parse(require('fs').readFileSync('$CONFIG_FILE','utf-8')); console.log(c.bundle_id || 'not set')" 2>/dev/null || echo "unknown")
-PLATFORMS=$(node -e "const c=JSON.parse(require('fs').readFileSync('$CONFIG_FILE','utf-8')); console.log((c.platforms||[]).join(', ') || 'none')" 2>/dev/null || echo "unknown")
-LOCALES=$(node -e "const c=JSON.parse(require('fs').readFileSync('$CONFIG_FILE','utf-8')); console.log((c.locales||[]).length)" 2>/dev/null || echo "0")
-VOICE=$(node -e "const c=JSON.parse(require('fs').readFileSync('$CONFIG_FILE','utf-8')); console.log(c.voice?.tone || 'not set')" 2>/dev/null || echo "unknown")
-
-# Check if API credentials are configured
-HAS_CREDS="no"
-if [ -f ".appstore/config.local.json" ]; then
-  HAS_CREDS="yes"
-fi
-
-echo "app-store-toolkit: $BUNDLE_ID | $PLATFORMS | ${LOCALES} locales | voice: $VOICE | API: $HAS_CREDS"
+# Parse config and display status in a single node call
+node -e "
+const fs = require('fs');
+try {
+  const c = JSON.parse(fs.readFileSync(process.argv[1], 'utf-8'));
+  const creds = fs.existsSync(process.argv[2]) ? 'yes' : 'no';
+  const parts = [
+    c.bundle_id || 'not set',
+    (c.platforms || []).join(', ') || 'none',
+    (c.locales || []).length + ' locales',
+    'voice: ' + (c.voice?.tone || 'not set'),
+    'API: ' + creds
+  ];
+  console.log('app-store-toolkit: ' + parts.join(' | '));
+} catch(e) {
+  console.log('app-store-toolkit: Error reading config — run /app-store-toolkit:setup');
+}
+" "$CONFIG_FILE" "$LOCAL_CONFIG" 2>/dev/null || echo "app-store-toolkit: Error reading config"

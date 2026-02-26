@@ -1,10 +1,21 @@
 #!/usr/bin/env bash
-# PostToolUse hook: Validate metadata file after edit
-# Called with the file path as the first argument
+# PostToolUse hook: Validate metadata file after Write/Edit
+# Receives JSON on stdin with: tool_name, tool_input (file_path, content), tool_result, cwd, etc.
 
 set -euo pipefail
 
-FILE_PATH="${1:-}"
+# Read hook input from stdin
+INPUT=$(cat)
+
+# Extract file_path from tool_input — use pipe since tool_input can be large
+FILE_PATH=$(printf '%s' "$INPUT" | node -e "
+let d = '';
+process.stdin.on('data', c => d += c);
+process.stdin.on('end', () => {
+  try { console.log(JSON.parse(d).tool_input?.file_path || ''); }
+  catch(e) { console.log(''); }
+});
+" 2>/dev/null || echo "")
 
 if [ -z "$FILE_PATH" ]; then
   exit 0

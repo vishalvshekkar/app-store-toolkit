@@ -21,6 +21,8 @@ You are generating release notes (What's New) for an app version.
 
 Call `store_read_config` to get voice/tone settings and platforms.
 
+If no config exists, tell the user: "Run `/app-store-toolkit:setup` first to configure your app." and STOP.
+
 ### 2. Determine Version Range
 
 Follow this priority order:

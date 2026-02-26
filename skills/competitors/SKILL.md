@@ -21,6 +21,11 @@ Parse `$ARGUMENTS` to determine what competitors to analyze. The user might prov
 - A specific app name (e.g., "Forest")
 - A category (e.g., "Productivity")
 
+### 1b. Load Current Metadata (Optional)
+
+Call `store_read_config` and `store_read_metadata` to load the user's existing metadata for comparison.
+If no config exists, that's OK — competitor analysis can still run without local metadata, but keyword gap analysis will be skipped.
+
 ### 2. Research Competitors
 
 Use web search to find competitor App Store listings. Search for:

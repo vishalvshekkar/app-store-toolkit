@@ -33,6 +33,8 @@ You are validating App Store metadata against Apple's character limits.
 ### 1. Read Config
 Call `store_read_config` to get the configured locales and platforms.
 
+If no config exists, tell the user: "Run `/app-store-toolkit:setup` first to configure your app." and STOP.
+
 ### 2. Run Validation
 Call `store_validate` with any locale/platform filters from `$ARGUMENTS`.
 

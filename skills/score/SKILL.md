@@ -20,6 +20,8 @@ Call `store_read_config` and then read all metadata for the target locale (prima
 - name, subtitle, keywords (app-level)
 - description, promotional_text (per platform)
 
+If no config exists, tell the user: "Run `/app-store-toolkit:setup` first to configure your app." and STOP.
+
 ### 2. Score Each Category (0-100)
 
 Calculate scores across these dimensions:

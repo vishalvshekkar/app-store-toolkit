@@ -25,6 +25,8 @@ Call `store_read_config` to get:
 - Voice/tone settings
 - Platforms
 
+If no config exists, tell the user: "Run `/app-store-toolkit:setup` first to configure your app." and STOP.
+
 ### 2. Determine Targets
 
 - If `$ARGUMENTS` specifies a locale, only localize to that locale

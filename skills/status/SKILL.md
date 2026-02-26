@@ -18,6 +18,8 @@ You are showing the sync status between local metadata and App Store Connect.
 
 Call `store_read_config` to get app_id, locales, and platforms.
 
+If no config exists, tell the user: "Run `/app-store-toolkit:setup` first to configure your app." and STOP.
+
 If no API credentials configured, show local-only status (what fields exist, completion %).
 
 ### 2. Fetch Remote State

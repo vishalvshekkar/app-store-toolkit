@@ -21,6 +21,8 @@ You are generating or managing in-app purchase (IAP) metadata.
 
 Call `store_read_config` to get voice/tone settings and primary locale.
 
+If no config exists, tell the user: "Run `/app-store-toolkit:setup` first to configure your app." and STOP.
+
 ### 2. Determine Mode
 
 **If `$ARGUMENTS` includes a product_id:**
