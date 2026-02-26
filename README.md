@@ -15,11 +15,17 @@ Generate ASO-optimized app names, descriptions, keywords, changelogs, and IAP co
 ## Installation
 
 ```bash
-# From the Claude Code plugin marketplace
-claude plugin marketplace add app-store-toolkit
+# Clone the repo
+git clone https://github.com/vishalvshekkar/app-store-toolkit.git
 
-# Or install directly from this repo
-claude plugin install /path/to/apple-app-store-assistant
+# Install as a Claude Code plugin
+claude plugin install /path/to/app-store-toolkit
+```
+
+Or, if you'd prefer to install directly from GitHub without cloning:
+
+```bash
+claude plugin install https://github.com/vishalvshekkar/app-store-toolkit
 ```
 
 ## Quick Start

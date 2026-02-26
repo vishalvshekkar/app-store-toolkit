@@ -26,7 +26,7 @@ agents/          Specialized AI agent prompts
 servers/         MCP server (TypeScript)
 hooks/           PostToolUse and SessionStart hooks
 scripts/         Build and validation scripts
-.claude-plugin/  Plugin manifest and marketplace config
+.claude-plugin/  Plugin manifest and config
 ```
 
 The MCP server lives in `servers/appstore-connect/`. It's TypeScript, built with tsup, and exposes tools over stdio.
