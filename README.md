@@ -14,15 +14,17 @@ Generate ASO-optimized app names, descriptions, keywords, changelogs, and IAP co
 
 ## Installation
 
-```bash
-# Clone the repo
-git clone https://github.com/vishalvshekkar/app-store-toolkit.git
+### From the Marketplace (recommended)
 
-# Install as a Claude Code plugin
-claude plugin install /path/to/app-store-toolkit
+```bash
+# Add the appcraft-tools marketplace
+/plugin marketplace add vishalvshekkar/appcraft-tools
+
+# Install the plugin
+/plugin install app-store-toolkit@appcraft-tools
 ```
 
-Or, if you'd prefer to install directly from GitHub without cloning:
+### Direct install
 
 ```bash
 claude plugin install https://github.com/vishalvshekkar/app-store-toolkit

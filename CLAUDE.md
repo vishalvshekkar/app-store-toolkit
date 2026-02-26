@@ -86,6 +86,34 @@ When generating content, gather context from (priority order):
 | `/app-store-toolkit:reviews`    | List reviews, draft and post responses       |
 | `/app-store-toolkit:privacy`    | Analyze code for App Privacy nutrition labels|
 
+## Plugin & Marketplace Distribution
+
+### Plugin Manifest
+- `.claude-plugin/plugin.json` — defines the plugin: name, version, skills, agents, MCP servers, hooks
+- `plugin.json` is the **authority** for version — if version is set in both `plugin.json` and `marketplace.json`, `plugin.json` wins silently
+
+### Marketplace (separate repo)
+- Marketplace name: **`appcraft-tools`** — lives in a separate repo: `vishalvshekkar/appcraft-tools`
+- The marketplace references this plugin via GitHub source: `{"source": "github", "repo": "vishalvshekkar/app-store-toolkit"}`
+- This repo contains NO `marketplace.json` — it is a pure plugin repo
+
+### How Users Install
+```
+/plugin marketplace add vishalvshekkar/appcraft-tools
+/plugin install app-store-toolkit@appcraft-tools
+```
+
+### Version Bumping
+- **Always bump version in `plugin.json` first** — it is the authority
+- Update `marketplace.json` version to match for clarity, but `plugin.json` controls what Claude Code sees
+- If two refs/commits have the same manifest version, Claude Code skips the update
+
+### Key Nuances
+- `${CLAUDE_PLUGIN_ROOT}` in `plugin.json` resolves to the plugin's cached install location, not the repo path — used for MCP server args and hook paths
+- Plugins are copied to `~/.claude/plugins/cache` on install — files outside the plugin directory are NOT copied (no `../` references)
+- `strict` mode (default `true`): `plugin.json` is authority for components; marketplace can supplement. Set to `false` only if marketplace should fully control component definitions
+- The marketplace repo (`appcraft-tools`) and plugin repos are fully separate — add new plugins to the marketplace by adding GitHub source entries in `appcraft-tools/.claude-plugin/marketplace.json`
+
 ## Tech Stack
 
 - MCP Server: TypeScript + Node.js 18+
