@@ -3,7 +3,10 @@
   "version": "0.1.0",
   "description": "AI-powered App Store Connect metadata management — ASO copywriting, changelogs, localization, and two-way sync.",
   "skills": "./skills/",
-  "agents": "./agents/",
+  "agents": [
+    "./agents/aso-copywriter.md",
+    "./agents/localizer.md"
+  ],
   "mcpServers": {
     "appstore-connect": {
       "command": "node",
