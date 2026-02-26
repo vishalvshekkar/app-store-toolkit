@@ -12,94 +12,115 @@ user_invocable: true
 
 You are setting up the app-store-toolkit plugin for App Store Connect metadata management.
 
-## Steps
+## CRITICAL: Multi-Turn Wizard Flow
 
-### 1. Check for Existing Config
+This setup is a **conversational wizard**. You MUST present ONE step at a time and WAIT for the user's response before proceeding to the next step. Do NOT present multiple steps or questions in a single message.
 
-Call the `store_read_config` MCP tool. If a config already exists, show the current settings and ask the user if they want to reconfigure or update specific settings.
+After each step, end your message with a clear question and STOP. Do not continue to the next step until the user responds.
 
-### 2. Gather Bundle ID
+## Step 1: Check Existing Config + Detect Project Info
 
-If `$ARGUMENTS` includes a bundle_id, use that. Otherwise, try to detect it:
-- Look for `*.xcodeproj` or `*.xcworkspace` files in the project
-- Check for `PRODUCT_BUNDLE_IDENTIFIER` in `.pbxproj` files
-- Check for `bundleIdentifier` in `Package.swift`
+**Do all of the following in parallel**, then present results:
 
-If auto-detection fails, ask the user for their bundle ID.
+1. Call `store_read_config` MCP tool to check for existing config
+2. Detect the bundle ID:
+   - Search for `PRODUCT_BUNDLE_IDENTIFIER` in `*.pbxproj` files
+   - If multiple values found, list ALL unique bundle IDs (excluding test targets — any containing `Tests`)
+   - Also check `Package.swift` for `bundleIdentifier`
+   - If `$ARGUMENTS` includes a bundle_id, use that instead of detection
+3. Detect platforms:
+   - In `.pbxproj`, search for `SUPPORTED_PLATFORMS` or `SDKROOT` values
+   - Look for platform-specific SDK values: `iphoneos` (iOS), `macosx` (macOS), `appletvos` (tvOS), `xros` (visionOS)
+   - Also check for `TARGETED_DEVICE_FAMILY`: 1 = iPhone, 2 = iPad, 1,2 = both
+   - Check multiplatform destinations: look for `supportedDestinations` containing multiple platforms
 
-### 3. Configure Platforms
+**If existing config found:** Show current settings as a summary table and ask: "Want to update any of these, or start fresh?"
 
-Ask the user which platforms their app supports:
-- iOS
-- macOS
-- tvOS
-- visionOS
+**STOP HERE and wait for the user's response.**
 
-Most apps are iOS-only. Default to `["IOS"]` if the user doesn't specify.
+**If no existing config:** Present what you detected:
 
-### 4. Configure Primary Locale
+```
+Detected from your Xcode project:
+  Bundle ID:  [detected or "not found"]
+  Platforms:  [detected list or "iOS (default)"]
+```
 
-Ask the user for their primary locale. Default to `en-US`. Explain that this is the locale used as the source for all translations.
+If the bundle ID was detected, ask: "Does this look right? And are the platforms correct?"
+If detection failed, ask: "What's your app's bundle identifier? (e.g., com.company.appname)"
 
-### 5. Configure Additional Locales
+**STOP HERE and wait for the user's response.**
 
-Ask if they want to add additional locales beyond the primary. Show a list of commonly used locales:
-- en-US, en-GB, en-AU, en-CA (English variants)
-- ja, ko, zh-Hans, zh-Hant (East Asian)
-- de-DE, fr-FR, es-ES, it, pt-BR (European/Latin American)
-- ar-SA, hi, th (Other)
+## Step 2: Voice & Tone
 
-They can always add more later with `/app-store-toolkit:localize`.
+Once bundle ID and platforms are confirmed, present the voice/tone options:
 
-### 6. Configure Voice & Tone
+| Preset           | Style                                    |
+|------------------|------------------------------------------|
+| **Professional** | Clear, polished, business-appropriate    |
+| **Casual**       | Friendly, conversational, approachable   |
+| **Playful**      | Fun, energetic, creative language        |
+| **Technical**    | Precise, feature-focused, detailed       |
+| **Minimal**      | Short, direct, no fluff                  |
+| **Witty**        | Clever, engaging, personality-driven     |
+| **Custom**       | Define your own style notes              |
 
-Present the voice/tone presets and ask the user to choose:
+Ask: "Which voice/tone fits your app? And who's your target audience? (e.g., 'creative professionals who value simplicity')"
 
-| Preset | Style |
-|--------|-------|
-| **Professional** | Clear, polished, business-appropriate |
-| **Casual** | Friendly, conversational, approachable |
-| **Playful** | Fun, energetic, creative language |
-| **Technical** | Precise, feature-focused, detailed |
-| **Minimal** | Short, direct, no fluff |
-| **Witty** | Clever, engaging, personality-driven |
-| **Custom** | Define your own style notes |
+If the user's project has a CLAUDE.md, README.md, or other docs that hint at the app's personality, suggest the most fitting preset with a brief reason why.
 
-If they choose Custom, ask for:
-- `style_notes`: How should the copy sound? (e.g., "Active voice, avoid buzzwords, conversational but authoritative")
-- `target_audience`: Who is this app for? (e.g., "Developers aged 25-40 who value productivity")
+If they choose **Custom**, follow up asking for `style_notes` and `target_audience`.
 
-For presets, still ask for an optional `target_audience`.
+**STOP HERE and wait for the user's response.**
 
-### 7. Configure API Credentials
+## Step 3: Locales
 
-Ask the user for their App Store Connect API credentials:
-1. **Key ID**: Found in App Store Connect > Users and Access > Integrations > Team Keys
-2. **Issuer ID**: Found at the top of the same page
-3. **Path to .p8 file**: The private key file they downloaded when creating the key
+After voice/tone is set, ask about locales:
 
-Explain:
-- These are stored locally in `.appstore/config.local.json` which is automatically gitignored
-- The recommended API key role is **App Manager**
-- They can skip this step and add credentials later (some features like `/app-store-toolkit:aso` work without API access)
+"Your primary locale will be **en-US**. Want to add other languages? Common choices:"
 
-If they provide credentials, save them with `store_write_local_config`.
+- **East Asian:** ja, ko, zh-Hans, zh-Hant
+- **European:** de-DE, fr-FR, es-ES, it, pt-BR
+- **Other:** ar-SA, hi, th, en-GB
 
-### 8. Save Configuration
+"You can skip this and add locales anytime with `/app-store-toolkit:localize`."
 
-Use `store_write_config` to save the configuration with all gathered settings.
+**STOP HERE and wait for the user's response.**
 
-### 9. Confirm Setup
+## Step 4: API Credentials
 
-Display a summary of what was configured:
-- Bundle ID
-- Platforms
-- Primary locale + additional locales
-- Voice/tone preset
-- API credentials status (configured / not configured)
-- Data directory: `.appstore/`
+Ask about App Store Connect API access:
 
-Suggest next steps:
-- If API configured: "Run `/app-store-toolkit:pull` to fetch your existing App Store metadata"
-- If no existing metadata: "Run `/app-store-toolkit:aso` to generate ASO-optimized metadata"
-- "Run `/app-store-toolkit:list metadata` to see your current metadata"
+"Do you have App Store Connect API credentials? This enables pulling/pushing metadata directly."
+
+"If yes, you'll need:"
+- **Key ID** — from App Store Connect → Users and Access → Integrations → Team Keys
+- **Issuer ID** — at the top of that same page
+- **Path to .p8 file** — the private key file
+
+"Credentials stay local in `.appstore/config.local.json` (gitignored). You can skip this — features like `/app-store-toolkit:aso` work without API access."
+
+**STOP HERE and wait for the user's response.**
+
+## Step 5: Save & Confirm
+
+Once all info is gathered:
+
+1. Call `store_write_config` with the collected settings
+2. If API credentials were provided, call `store_write_local_config`
+3. Display a summary:
+
+```
+Setup complete!
+  Bundle ID:    com.example.app
+  Platforms:    iOS, macOS
+  Locale:       en-US
+  Voice:        Casual
+  Audience:     [if provided]
+  API Access:   ✓ configured / ✗ skipped
+  Data dir:     .appstore/
+```
+
+4. Suggest next steps based on what was configured:
+   - If API configured: "Run `/app-store-toolkit:pull` to fetch your current App Store metadata"
+   - Always: "Run `/app-store-toolkit:aso` to generate ASO-optimized metadata"
