@@ -78,6 +78,8 @@ export async function updateVersionLocalization(
     keywords?: string;
     promotionalText?: string;
     whatsNew?: string;
+    marketingUrl?: string;
+    supportUrl?: string;
   }
 ): Promise<Resource<VersionLocalizationAttributes>> {
   const response = await ascRequest<VersionLocalizationAttributes>(

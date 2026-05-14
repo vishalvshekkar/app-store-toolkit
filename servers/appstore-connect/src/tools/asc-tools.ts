@@ -278,15 +278,25 @@ export function registerAscTools(server: McpServer): void {
   // --- asc_update_version_localization ---
   server.tool(
     "asc_update_version_localization",
-    "Update version localization (description, keywords, promo, whatsNew) in App Store Connect",
+    "Update version localization (description, keywords, promo, whatsNew, marketingUrl, supportUrl) in App Store Connect",
     {
       localization_id: z.string().describe("The version localization ID"),
       description: z.string().optional().describe("New description"),
       keywords: z.string().optional().describe("New keywords"),
       promotionalText: z.string().optional().describe("New promotional text"),
       whatsNew: z.string().optional().describe("New What's New text"),
+      marketingUrl: z.string().optional().describe("Marketing URL for this locale"),
+      supportUrl: z.string().optional().describe("Support URL for this locale"),
     },
-    async ({ localization_id, description, keywords, promotionalText, whatsNew }) => {
+    async ({
+      localization_id,
+      description,
+      keywords,
+      promotionalText,
+      whatsNew,
+      marketingUrl,
+      supportUrl,
+    }) => {
       try {
         if (!(await hasCredentials())) return noCredentialsError();
         const updates: Record<string, string> = {};
@@ -294,8 +304,16 @@ export function registerAscTools(server: McpServer): void {
         if (keywords !== undefined) updates.keywords = keywords;
         if (promotionalText !== undefined) updates.promotionalText = promotionalText;
         if (whatsNew !== undefined) updates.whatsNew = whatsNew;
+        if (marketingUrl !== undefined) updates.marketingUrl = marketingUrl;
+        if (supportUrl !== undefined) updates.supportUrl = supportUrl;
 
         const updated = await updateVersionLocalization(localization_id, updates);
+        await appendHistoryEntry("pushes", {
+          tool: "asc_update_version_localization",
+          target: { localization_id },
+          payload: updates,
+          result: "success",
+        });
         return {
           content: [
             {
@@ -313,6 +331,13 @@ export function registerAscTools(server: McpServer): void {
           ],
         };
       } catch (e: any) {
+        await appendHistoryEntry("pushes", {
+          tool: "asc_update_version_localization",
+          target: { localization_id },
+          payload: { description, keywords, promotionalText, whatsNew, marketingUrl, supportUrl },
+          result: "error",
+          error: e.message,
+        });
         return {
           content: [{ type: "text" as const, text: `Error: ${e.message}` }],
           isError: true,
