@@ -105,3 +105,74 @@ export type MetadataField =
   | "release_notes"
   | "iap_display_name"
   | "iap_description";
+
+/** ASC primary category enum subset — extend as needed */
+export type AppCategory =
+  | "BUSINESS"
+  | "DEVELOPER_TOOLS"
+  | "EDUCATION"
+  | "ENTERTAINMENT"
+  | "FINANCE"
+  | "FOOD_AND_DRINK"
+  | "GAMES"
+  | "GRAPHICS_AND_DESIGN"
+  | "HEALTH_AND_FITNESS"
+  | "LIFESTYLE"
+  | "MAGAZINES_AND_NEWSPAPERS"
+  | "MEDICAL"
+  | "MUSIC"
+  | "NAVIGATION"
+  | "NEWS"
+  | "PHOTO_AND_VIDEO"
+  | "PRODUCTIVITY"
+  | "REFERENCE"
+  | "SHOPPING"
+  | "SOCIAL_NETWORKING"
+  | "SPORTS"
+  | "STICKERS"
+  | "TRAVEL"
+  | "UTILITIES"
+  | "WEATHER";
+
+/** A single age-rating answer keyed by Apple's question id (e.g., "VIOLENCE_CARTOON_OR_FANTASY") */
+export interface AgeRatingAnswer {
+  questionId: string;
+  /** "NONE" | "INFREQUENT_OR_MILD" | "FREQUENT_OR_INTENSE" — exact set varies per question */
+  level: string;
+}
+
+/** Price point per territory. Apple price points are integer tier ids. */
+export interface PriceTierEntry {
+  territory: string; // ISO 3166-1 alpha-2
+  priceTier: number;
+}
+
+/** A territory the app is available in */
+export type Territory = string; // ISO 3166-1 alpha-2
+
+/** Top-level listing config */
+export interface ListingConfig {
+  categories: {
+    primary: AppCategory;
+    secondary?: AppCategory;
+  };
+  ageRating: {
+    answers: AgeRatingAnswer[];
+    /** Optional: derived rating Apple computes from answers, cached for diffing */
+    derivedRating?: string;
+  };
+  pricing: {
+    /** When all territories share one tier, set this and leave perTerritory empty */
+    defaultTier?: number;
+    perTerritory: PriceTierEntry[];
+  };
+  availability: {
+    territories: Territory[];
+  };
+  encryption: {
+    /** Default encryption answer used when attaching builds; overridable per-build */
+    usesEncryption: boolean;
+    /** Optional list of exemption codes when usesEncryption=true */
+    exemptions: string[];
+  };
+}
