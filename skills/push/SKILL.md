@@ -96,3 +96,78 @@ Push complete:
 
 - "Run `/app-store-toolkit:status` to verify sync state"
 - "Run `/app-store-toolkit:pull` to confirm remote matches local"
+
+## Pushing listing config (categories, age rating, pricing, availability, encryption)
+
+Read `.appstore/listing.json` via `store_read_listing`. If the file doesn't exist, skip this stage with a note: "No listing.json found — run /app-store-toolkit:setup or create it manually."
+
+Then for each section that needs pushing (offer the user a multi-select if running interactively):
+
+### Categories
+Look up `app_info_id` (the editable appInfo's id) via `asc_get_app_info` if not already cached. Then call:
+```
+asc_set_categories({
+  app_info_id: "<id>",
+  primary: listing.categories.primary,
+  secondary: listing.categories.secondary,
+})
+```
+
+### Age rating
+Look up the `ageRatingDeclaration` id from the editable `appInfo` (Apple exposes it as a relationship). Then:
+```
+asc_set_age_rating({
+  declaration_id: "<id>",
+  answers: listing.ageRating.answers,
+})
+```
+
+### Pricing
+```
+asc_set_pricing({
+  app_id: "<id>",
+  default_tier: listing.pricing.defaultTier,
+  per_territory: listing.pricing.perTerritory.map(p => ({ territory: p.territory, price_tier: p.priceTier })),
+})
+```
+
+### Availability
+```
+asc_set_availability({
+  app_id: "<id>",
+  territories: listing.availability.territories,
+})
+```
+
+### Encryption (if a build is attached)
+Get `build_id` from the version. Then:
+```
+asc_set_encryption_compliance({
+  build_id: "<id>",
+  uses_encryption: listing.encryption.usesEncryption,
+  exemptions: listing.encryption.exemptions,
+})
+```
+
+## Pushing App Privacy
+
+Read `.appstore/privacy.json` via `store_read_privacy`. If absent, skip with note. Else:
+```
+asc_set_privacy_responses({ app_id: "<id>", responses: privacy })
+```
+
+## Pushing App Review information
+
+Read `.appstore/review.json` via `store_read_review`. If absent, skip. Else look up the `reviewDetailId` from the version's `appStoreReviewDetail` relationship and call:
+```
+asc_set_review_info({
+  review_detail_id: "<id>",
+  contact: review.contact,
+  demo: review.demo,
+  notes: review.notes,
+})
+```
+
+## Pushing per-locale URL fields
+
+When pushing each locale's content via `asc_update_version_localization`, include `marketingUrl` and `supportUrl` if present in the local metadata. When pushing each locale's `asc_update_app_info`, include `privacyPolicyUrl` if present.
