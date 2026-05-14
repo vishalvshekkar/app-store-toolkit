@@ -23,6 +23,7 @@ export function getMetadataDir(): string {
 export async function ensureAppstoreDir(): Promise<void> {
   const appstoreDir = getAppstoreDir();
   const metadataDir = getMetadataDir();
+  const historyDir = join(appstoreDir, "history");
 
   if (!existsSync(appstoreDir)) {
     await mkdir(appstoreDir, { recursive: true });
@@ -30,11 +31,20 @@ export async function ensureAppstoreDir(): Promise<void> {
   if (!existsSync(metadataDir)) {
     await mkdir(metadataDir, { recursive: true });
   }
+  if (!existsSync(historyDir)) {
+    await mkdir(historyDir, { recursive: true });
+  }
 
-  // Ensure .gitignore exists in .appstore/
+  // Ensure .gitignore covers credentials and transient state
   const gitignorePath = join(appstoreDir, GITIGNORE_FILE);
+  const desired = "config.local.json\nship-state.json\n";
   if (!existsSync(gitignorePath)) {
-    await writeFile(gitignorePath, "config.local.json\n", "utf-8");
+    await writeFile(gitignorePath, desired, "utf-8");
+  } else {
+    const current = await readFile(gitignorePath, "utf-8");
+    if (!current.includes("ship-state.json")) {
+      await writeFile(gitignorePath, current.trimEnd() + "\nship-state.json\n", "utf-8");
+    }
   }
 }
 
