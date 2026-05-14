@@ -82,3 +82,27 @@ IAPs pulled: 2 (premium_monthly, premium_yearly)
 - "Run `/app-store-toolkit:list metadata` to see all pulled data"
 - "Run `/app-store-toolkit:aso` to generate improved metadata"
 - "Run `/app-store-toolkit:validate` to check character limits"
+
+## Pulling listing config
+
+For each section, read from ASC and merge into a `ListingConfig` object, then write via `store_write_listing`.
+
+- **Categories**: read `appInfos[].attributes.{primaryCategory, secondaryCategory}`.
+- **Age rating**: read `appInfos[].relationships.ageRatingDeclaration → attributes.{...}` and convert each camelCase attribute back to UPPER_SNAKE question id (`violenceCartoonOrFantasy → VIOLENCE_CARTOON_OR_FANTASY`).
+- **Pricing**: read the latest `appPriceSchedules` with `included=manualPrices` and reconstruct `{ defaultTier, perTerritory }`.
+- **Availability**: read `appAvailabilities → availableTerritories` and convert alpha-3 → alpha-2.
+- **Encryption**: read the editable build's `usesNonExemptEncryption` and `exportComplianceCode`.
+
+Note: pulling pricing and availability requires API calls not yet wrapped (they're write-side in M1). For pull, hand-roll with `asc_get_*` style helpers as needed; the wrappers can be added in a follow-on. For M1 it's acceptable to pull only categories, age rating, encryption — and document that pricing/availability pull is a known gap.
+
+## Pulling App Privacy
+
+Call `GET /v1/apps/{appId}/dataUsages` (no wrapper exists yet — make the call inline using the existing `ascRequest` if needed, or skip with a note for M1). Reconstruct a `PrivacyResponses` object and write via `store_write_privacy`.
+
+## Pulling App Review information
+
+Read `appStoreReviewDetails` for the editable version. Map the attributes back into a `ReviewInfo` object and write via `store_write_review`.
+
+## Pulling URL fields
+
+For each locale, read `marketingUrl` and `supportUrl` from `appStoreVersionLocalizations` and `privacyPolicyUrl` from `appInfoLocalizations`. Write them into the per-locale metadata file alongside the existing fields.
