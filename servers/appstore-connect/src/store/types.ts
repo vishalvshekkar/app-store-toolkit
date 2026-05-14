@@ -1,3 +1,5 @@
+import type { DataField, Purpose } from "../data/privacy-taxonomy.js";
+
 /** Source of a content iteration */
 export type IterationSource =
   | "ai_generated"
@@ -175,4 +177,28 @@ export interface ListingConfig {
     /** Optional list of exemption codes when usesEncryption=true */
     exemptions: string[];
   };
+}
+
+/** A single declared data type with its handling attributes */
+export interface DeclaredDataType {
+  type: DataField;
+  /** Whether the data is linked to the user's identity */
+  linkedToUser: boolean;
+  /** Whether the data is used for tracking across apps/sites */
+  usedForTracking: boolean;
+  /** Why the data is collected */
+  purposes: Purpose[];
+}
+
+/** Top-level App Privacy answers */
+export interface PrivacyResponses {
+  /** Top-level "Do you collect data?" — when false, dataTypes must be empty */
+  collectsData: boolean;
+  tracking: {
+    /** Does the app use ATT tracking? */
+    enabled: boolean;
+    /** Tracking domains, when enabled */
+    domains: string[];
+  };
+  dataTypes: DeclaredDataType[];
 }
