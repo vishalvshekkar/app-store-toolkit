@@ -1,0 +1,28 @@
+{
+  "dataTypes": [
+    { "category": "CONTACT_INFO", "fields": ["NAME", "EMAIL_ADDRESS", "PHONE_NUMBER", "PHYSICAL_ADDRESS", "OTHER_USER_CONTACT_INFO"] },
+    { "category": "HEALTH_AND_FITNESS", "fields": ["HEALTH", "FITNESS"] },
+    { "category": "FINANCIAL_INFO", "fields": ["PAYMENT_INFO", "CREDIT_INFO", "OTHER_FINANCIAL_INFO"] },
+    { "category": "LOCATION", "fields": ["PRECISE_LOCATION", "COARSE_LOCATION"] },
+    { "category": "SENSITIVE_INFO", "fields": ["SENSITIVE_INFO"] },
+    { "category": "CONTACTS", "fields": ["CONTACTS"] },
+    { "category": "USER_CONTENT", "fields": ["EMAILS_OR_TEXT_MESSAGES", "PHOTOS_OR_VIDEOS", "AUDIO_DATA", "GAMEPLAY_CONTENT", "CUSTOMER_SUPPORT", "OTHER_USER_CONTENT"] },
+    { "category": "BROWSING_HISTORY", "fields": ["BROWSING_HISTORY"] },
+    { "category": "SEARCH_HISTORY", "fields": ["SEARCH_HISTORY"] },
+    { "category": "IDENTIFIERS", "fields": ["USER_ID", "DEVICE_ID"] },
+    { "category": "PURCHASES", "fields": ["PURCHASE_HISTORY"] },
+    { "category": "USAGE_DATA", "fields": ["PRODUCT_INTERACTION", "ADVERTISING_DATA", "OTHER_USAGE_DATA"] },
+    { "category": "DIAGNOSTICS", "fields": ["CRASH_DATA", "PERFORMANCE_DATA", "OTHER_DIAGNOSTIC_DATA"] },
+    { "category": "SURROUNDINGS", "fields": ["ENVIRONMENT_SCANNING"] },
+    { "category": "BODY", "fields": ["HANDS", "HEAD"] },
+    { "category": "OTHER", "fields": ["OTHER_DATA_TYPES"] }
+  ],
+  "purposes": [
+    "THIRD_PARTY_ADVERTISING",
+    "DEVELOPERS_ADVERTISING",
+    "ANALYTICS",
+    "PRODUCT_PERSONALIZATION",
+    "APP_FUNCTIONALITY",
+    "OTHER_PURPOSES"
+  ]
+}
