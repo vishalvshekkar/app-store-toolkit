@@ -129,6 +129,22 @@ export const AscSetAvailabilitySchema = z.object({
     .describe("ISO 3166-1 alpha-2 territory codes the app should be available in"),
 });
 
+export const AscSetReviewInfoSchema = z.object({
+  review_detail_id: z.string().describe("The version's appStoreReviewDetail resource ID"),
+  contact: z.object({
+    firstName: z.string(),
+    lastName: z.string(),
+    email: z.string(),
+    phone: z.string(),
+  }),
+  demo: z.object({
+    required: z.boolean(),
+    username: z.string().optional(),
+    password: z.string().optional(),
+  }),
+  notes: z.string(),
+});
+
 export const AscSetPrivacyResponsesSchema = z.object({
   app_id: z.string().describe("The app's App Store Connect ID"),
   responses: z
