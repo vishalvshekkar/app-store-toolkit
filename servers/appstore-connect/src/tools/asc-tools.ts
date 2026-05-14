@@ -148,20 +148,33 @@ export function registerAscTools(server: McpServer): void {
   // --- asc_update_app_info ---
   server.tool(
     "asc_update_app_info",
-    "Update app-level localization (name, subtitle) in App Store Connect",
+    "Update app-level localization (name, subtitle, privacyPolicyUrl) in App Store Connect",
     {
       localization_id: z.string().describe("The app info localization ID"),
       name: z.string().optional().describe("New app name"),
       subtitle: z.string().optional().describe("New app subtitle"),
+      privacyPolicyUrl: z
+        .string()
+        .optional()
+        .describe(
+          "Privacy policy URL for this locale (per-locale storage avoids the app-level PATCH 409 conflict)"
+        ),
     },
-    async ({ localization_id, name, subtitle }) => {
+    async ({ localization_id, name, subtitle, privacyPolicyUrl }) => {
       try {
         if (!(await hasCredentials())) return noCredentialsError();
         const updates: Record<string, string> = {};
         if (name !== undefined) updates.name = name;
         if (subtitle !== undefined) updates.subtitle = subtitle;
+        if (privacyPolicyUrl !== undefined) updates.privacyPolicyUrl = privacyPolicyUrl;
 
         const updated = await updateAppInfoLocalization(localization_id, updates);
+        await appendHistoryEntry("pushes", {
+          tool: "asc_update_app_info",
+          target: { localization_id },
+          payload: updates,
+          result: "success",
+        });
         return {
           content: [
             {
@@ -172,6 +185,7 @@ export function registerAscTools(server: McpServer): void {
                   id: updated.id,
                   name: updated.attributes.name,
                   subtitle: updated.attributes.subtitle,
+                  privacyPolicyUrl: updated.attributes.privacyPolicyUrl,
                 },
                 null,
                 2
@@ -180,6 +194,13 @@ export function registerAscTools(server: McpServer): void {
           ],
         };
       } catch (e: any) {
+        await appendHistoryEntry("pushes", {
+          tool: "asc_update_app_info",
+          target: { localization_id },
+          payload: { name, subtitle, privacyPolicyUrl },
+          result: "error",
+          error: e.message,
+        });
         return {
           content: [{ type: "text" as const, text: `Error: ${e.message}` }],
           isError: true,

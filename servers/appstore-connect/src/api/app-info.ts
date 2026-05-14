@@ -40,10 +40,10 @@ export async function getAppInfoLocalizations(
   ) as Resource<AppInfoLocalizationAttributes>[];
 }
 
-/** Update an app info localization (name, subtitle) */
+/** Update an app info localization (name, subtitle, privacyPolicyUrl) */
 export async function updateAppInfoLocalization(
   localizationId: string,
-  updates: { name?: string; subtitle?: string }
+  updates: { name?: string; subtitle?: string; privacyPolicyUrl?: string }
 ): Promise<Resource<AppInfoLocalizationAttributes>> {
   const response = await ascRequest<AppInfoLocalizationAttributes>(
     `/v1/appInfoLocalizations/${localizationId}`,
