@@ -24,6 +24,7 @@ import { setAppPriceSchedule } from "../api/pricing.js";
 import { setAppAvailability } from "../api/availability.js";
 import { replaceAppDataUsages } from "../api/privacy.js";
 import { setAppStoreReviewDetail } from "../api/review-info.js";
+import { setBuildEncryption } from "../api/encryption.js";
 import { appendHistoryEntry } from "../store/history.js";
 import {
   AscSetCategoriesSchema,
@@ -32,6 +33,7 @@ import {
   AscSetAvailabilitySchema,
   AscSetPrivacyResponsesSchema,
   AscSetReviewInfoSchema,
+  AscSetEncryptionComplianceSchema,
 } from "./schemas.js";
 import { hasCredentials } from "../auth/jwt.js";
 
@@ -705,6 +707,45 @@ export function registerAscTools(server: McpServer): void {
           tool: "asc_set_review_info",
           target: { review_detail_id },
           payload: { contact, demo: { required: demo.required }, notes },
+          result: "error",
+          error: e.message,
+        });
+        return {
+          content: [{ type: "text" as const, text: `Error: ${e.message}` }],
+          isError: true,
+        };
+      }
+    }
+  );
+
+  // --- asc_set_encryption_compliance ---
+  server.tool(
+    "asc_set_encryption_compliance",
+    "Set encryption compliance answer on a build",
+    AscSetEncryptionComplianceSchema.shape,
+    async ({ build_id, uses_encryption, exemptions }) => {
+      try {
+        if (!(await hasCredentials())) return noCredentialsError();
+        const updated = await setBuildEncryption(build_id, {
+          usesEncryption: uses_encryption,
+          exemptions,
+        });
+        await appendHistoryEntry("pushes", {
+          tool: "asc_set_encryption_compliance",
+          target: { build_id },
+          payload: { uses_encryption, exemptions },
+          result: "success",
+        });
+        return {
+          content: [
+            { type: "text" as const, text: JSON.stringify({ success: true, id: updated.id }, null, 2) },
+          ],
+        };
+      } catch (e: any) {
+        await appendHistoryEntry("pushes", {
+          tool: "asc_set_encryption_compliance",
+          target: { build_id },
+          payload: { uses_encryption, exemptions },
           result: "error",
           error: e.message,
         });

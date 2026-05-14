@@ -145,6 +145,12 @@ export const AscSetReviewInfoSchema = z.object({
   notes: z.string(),
 });
 
+export const AscSetEncryptionComplianceSchema = z.object({
+  build_id: z.string().describe("The build resource ID"),
+  uses_encryption: z.boolean().describe("Whether the build uses non-exempt encryption"),
+  exemptions: z.array(z.string()).default([]).describe("Optional export-compliance code(s)"),
+});
+
 export const AscSetPrivacyResponsesSchema = z.object({
   app_id: z.string().describe("The app's App Store Connect ID"),
   responses: z
