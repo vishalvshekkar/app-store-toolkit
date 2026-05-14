@@ -21,11 +21,13 @@ import { getCustomerReviews, postReviewResponse } from "../api/reviews.js";
 import { setCategories } from "../api/categories.js";
 import { setAgeRatingDeclaration } from "../api/age-rating.js";
 import { setAppPriceSchedule } from "../api/pricing.js";
+import { setAppAvailability } from "../api/availability.js";
 import { appendHistoryEntry } from "../store/history.js";
 import {
   AscSetCategoriesSchema,
   AscSetAgeRatingSchema,
   AscSetPricingSchema,
+  AscSetAvailabilitySchema,
 } from "./schemas.js";
 import { hasCredentials } from "../auth/jwt.js";
 
@@ -615,6 +617,42 @@ export function registerAscTools(server: McpServer): void {
           tool: "asc_set_pricing",
           target: { app_id },
           payload: { default_tier, per_territory },
+          result: "error",
+          error: e.message,
+        });
+        return {
+          content: [{ type: "text" as const, text: `Error: ${e.message}` }],
+          isError: true,
+        };
+      }
+    }
+  );
+
+  // --- asc_set_availability ---
+  server.tool(
+    "asc_set_availability",
+    "Set the territories the app is available in",
+    AscSetAvailabilitySchema.shape,
+    async ({ app_id, territories }) => {
+      try {
+        if (!(await hasCredentials())) return noCredentialsError();
+        const updated = await setAppAvailability(app_id, territories);
+        await appendHistoryEntry("pushes", {
+          tool: "asc_set_availability",
+          target: { app_id },
+          payload: { territories },
+          result: "success",
+        });
+        return {
+          content: [
+            { type: "text" as const, text: JSON.stringify({ success: true, id: updated.id }, null, 2) },
+          ],
+        };
+      } catch (e: any) {
+        await appendHistoryEntry("pushes", {
+          tool: "asc_set_availability",
+          target: { app_id },
+          payload: { territories },
           result: "error",
           error: e.message,
         });

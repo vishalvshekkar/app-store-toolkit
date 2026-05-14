@@ -121,3 +121,10 @@ export const AscSetPricingSchema = z.object({
     .default([])
     .describe("Optional per-territory tier overrides"),
 });
+
+export const AscSetAvailabilitySchema = z.object({
+  app_id: z.string().describe("The app's App Store Connect ID"),
+  territories: z
+    .array(z.string())
+    .describe("ISO 3166-1 alpha-2 territory codes the app should be available in"),
+});
