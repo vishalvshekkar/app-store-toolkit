@@ -21,13 +21,27 @@ app-store-toolkit is a Claude Code plugin that manages App Store Connect metadat
 - `.appstore/config.local.json` — **gitignored**: key_id, issuer_id, p8_key_path (NEVER commit)
 
 ### Metadata Store
-All content fields use `FieldWithHistory` — an append-only iteration log with a `latest` pointer:
+
+App-level decisions and per-locale content live in `.appstore/`. Every committed file is a single source of truth; ASC is the deploy target.
+
 ```
-.appstore/metadata/{locale}/app_info.json        — name, subtitle, keywords (app-level, shared across platforms)
-.appstore/metadata/{locale}/{platform}/           — description, promotional_text (version-level, per-platform)
-.appstore/metadata/{locale}/{platform}/release_notes/{version}.json
-.appstore/metadata/{locale}/iap/{product_id}.json
+.appstore/
+  config.json              ✅ committed — bundle id, locales, voice
+  config.local.json        🚫 gitignored — credentials only
+  listing.json             ✅ NEW — categories, age rating, pricing, availability, encryption defaults
+  privacy.json             ✅ NEW — App Privacy questionnaire responses (taxonomy-validated)
+  review.json              ✅ NEW — App Review information (contact, demo creds, notes)
+  metadata/{locale}/...    ✅ per-locale content; URL fields live here
+  history/                 ✅ NEW append-only audit log
+    pushes.jsonl           # one line per ASC mutation: timestamp, tool, payload, result
+    submissions.jsonl      # M3
+    audits.jsonl           # M3
+  ship-state.json          🚫 NEW gitignored transient — /ship checkpoint (M3)
 ```
+
+Every mutating MCP tool (`asc_update_*`, `asc_set_*`) appends to `history/pushes.jsonl` automatically. `git log -p .appstore/history/` answers "what did we tell ASC and when."
+
+All FieldWithHistory iteration sources, locale dirs, and platform splits work as before.
 
 ### Iteration Sources
 - `ai_generated` — created by ASO/changelog/IAP skills

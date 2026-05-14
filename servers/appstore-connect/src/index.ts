@@ -14,7 +14,7 @@ if (process.argv.includes("--validate")) {
 // Normal MCP server mode
 const server = new McpServer({
   name: "appstore-connect",
-  version: "0.1.0",
+  version: "0.2.0",
 });
 
 // Register tool groups

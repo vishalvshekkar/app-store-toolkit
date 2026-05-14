@@ -2,26 +2,28 @@
 
 What's planned for app-store-toolkit. No promises on timelines.
 
+## Completed
+
+- [x] M1 — Toolkit can fill every required ASC field (v0.2.0)
+  - listing.json (categories, age rating, pricing, availability, encryption)
+  - privacy.json (App Privacy responses with taxonomy validation)
+  - review.json (App Review information)
+  - URL fields on existing tools (marketingUrl, supportUrl, privacyPolicyUrl)
+  - history audit log (.appstore/history/*.jsonl)
+
 ## In Progress
 
-- [ ] End-to-end testing with live App Store Connect accounts
-- [ ] Error messages and edge case handling across all MCP tools
-
-## Next Up
-
-- [ ] Screenshot text overlay generation per locale
-- [ ] A/B testing support for metadata variants
-- [ ] ASO keyword ranking tracker (track positions over time)
-- [ ] Metadata templates (save and reuse generation patterns)
-- [ ] CI/CD integration (validate metadata in pull requests)
+- [ ] M2 — Toolkit handles assets (screenshot upload, App Preview upload, dimension catalog, light HTML templating)
+- [ ] M3 — Toolkit submits (build attach, submit-for-review, /audit, /submit, /ship skills)
 
 ## Later
 
-- [ ] Multi-app workspace (manage several apps from one repo)
-- [ ] Fastlane metadata migration (`fastlane deliver` format import/export)
-- [ ] App Store version submission workflow (create version, attach build, submit for review)
-- [ ] Conversion rate analytics (pull download and impression data)
-- [ ] Custom field plugins (extend metadata schema for internal use)
+- [ ] Privacy depth (Privacy Manifest cross-check, Required Reason API audit)
+- [ ] Post-launch ops (analytics pull, reviews intelligence, rejection triage)
+- [ ] Multi-app / multi-account / multi-platform
+- [ ] Marketing surface (Custom Product Pages, PPO A/B testing, In-App Events)
+
+See `docs/superpowers/specs/2026-05-14-submission-readiness-design.md` for the M1/M2/M3 architecture and §12 for the post-M3 follow-on rounds.
 
 ## Ideas (Not Committed)
 
