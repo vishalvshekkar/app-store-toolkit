@@ -190,6 +190,28 @@ export interface DeclaredDataType {
   purposes: Purpose[];
 }
 
+/** App Review contact information */
+export interface ReviewContact {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+}
+
+/** Optional demo account credentials when the app requires sign-in */
+export interface DemoAccount {
+  required: boolean;
+  username?: string;
+  password?: string;
+}
+
+/** App Review information (per-version, single source of truth) */
+export interface ReviewInfo {
+  contact: ReviewContact;
+  demo: DemoAccount;
+  notes: string;
+}
+
 /** Top-level App Privacy answers */
 export interface PrivacyResponses {
   /** Top-level "Do you collect data?" — when false, dataTypes must be empty */
