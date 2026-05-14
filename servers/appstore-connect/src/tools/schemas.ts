@@ -95,3 +95,15 @@ export const AscSetCategoriesSchema = z.object({
   primary: z.string().describe("Primary category enum (e.g., PRODUCTIVITY)"),
   secondary: z.string().optional().describe("Optional secondary category"),
 });
+
+export const AscSetAgeRatingSchema = z.object({
+  declaration_id: z.string().describe("The age rating declaration resource ID"),
+  answers: z
+    .array(
+      z.object({
+        questionId: z.string().describe("Apple question id (UPPER_SNAKE_CASE)"),
+        level: z.string().describe("Answer level for this question"),
+      })
+    )
+    .describe("Full set of answers to push"),
+});

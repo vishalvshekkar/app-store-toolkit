@@ -19,8 +19,9 @@ import {
 } from "../api/iap.js";
 import { getCustomerReviews, postReviewResponse } from "../api/reviews.js";
 import { setCategories } from "../api/categories.js";
+import { setAgeRatingDeclaration } from "../api/age-rating.js";
 import { appendHistoryEntry } from "../store/history.js";
-import { AscSetCategoriesSchema } from "./schemas.js";
+import { AscSetCategoriesSchema, AscSetAgeRatingSchema } from "./schemas.js";
 import { hasCredentials } from "../auth/jwt.js";
 
 function noCredentialsError() {
@@ -528,6 +529,45 @@ export function registerAscTools(server: McpServer): void {
           tool: "asc_set_categories",
           target: { app_info_id },
           payload: { primary, secondary },
+          result: "error",
+          error: e.message,
+        });
+        return {
+          content: [{ type: "text" as const, text: `Error: ${e.message}` }],
+          isError: true,
+        };
+      }
+    }
+  );
+
+  // --- asc_set_age_rating ---
+  server.tool(
+    "asc_set_age_rating",
+    "Set age rating answers on the editable appInfo's age rating declaration",
+    AscSetAgeRatingSchema.shape,
+    async ({ declaration_id, answers }) => {
+      try {
+        if (!(await hasCredentials())) return noCredentialsError();
+        const updated = await setAgeRatingDeclaration(declaration_id, answers);
+        await appendHistoryEntry("pushes", {
+          tool: "asc_set_age_rating",
+          target: { declaration_id },
+          payload: { answers },
+          result: "success",
+        });
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: JSON.stringify({ success: true, id: updated.id }, null, 2),
+            },
+          ],
+        };
+      } catch (e: any) {
+        await appendHistoryEntry("pushes", {
+          tool: "asc_set_age_rating",
+          target: { declaration_id },
+          payload: { answers },
           result: "error",
           error: e.message,
         });
