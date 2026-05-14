@@ -18,7 +18,17 @@ The toolkit's stated mission is "manage App Store metadata as code." The mission
 
 > **Provide a complete, AI-assistable interface to populate, validate, and submit an App Store v1.0 release without leaving Claude Code.**
 
-Multi-app, multi-account, post-launch analytics, A/B testing, and full multi-platform parity are deliberately out of scope for this round. They remain on the broader roadmap.
+Multi-app, multi-account, post-launch analytics, A/B testing, and full multi-platform parity are deliberately out of scope for this round. They remain on the broader roadmap (see §12).
+
+### Pillar: every App Store listing detail is git-tracked
+
+This is a non-negotiable principle for the toolkit. Every piece of data that describes the App Store listing — copy, decisions, configuration, assets, the history of every push and submission — lives in a single folder (`.appstore/`) inside the user's repo and is committed to git. Three consequences flow from this:
+
+1. **Diff-reviewability.** Any change to the listing — a tweaked headline, a new privacy answer, a swapped screenshot — shows up as a git diff a teammate can review in a PR before it ships.
+2. **Auditability.** "When did we change the German promo text?" and "what did we tell App Review last time?" are answered by `git log`, not by clicking through the ASC web UI.
+3. **Reversibility.** `git revert` rolls back a listing change. The local store is the source of truth; ASC is the deploy target.
+
+The only files in `.appstore/` that are **not** committed are credentials (`config.local.json`) and transient operational state (`ship-state.json`). Everything else — including binary assets — is committed, with Git LFS recommended (and configured by `/setup`) when assets are large.
 
 ## 3. Scope
 
@@ -72,28 +82,36 @@ Today:
   metadata/{locale}/...    # per-locale content
 ```
 
-After this design:
+After this design (✅ = committed to git, 🚫 = gitignored):
 ```
 .appstore/
-  config.json              # unchanged
-  config.local.json        # unchanged
-  listing.json             # NEW — categories, age rating, pricing, availability, encryption defaults
-  privacy.json             # NEW — App Privacy questionnaire responses
-  review.json              # NEW — App Review information (contact, demo creds, notes)
-  metadata/{locale}/...    # extended with marketingUrl, supportUrl, privacyPolicyUrl
-  assets/                  # NEW — user-managed asset directory (path overridable)
+  config.json              ✅ unchanged
+  config.local.json        🚫 unchanged — credentials only
+  listing.json             ✅ NEW — categories, age rating, pricing, availability, encryption defaults
+  privacy.json             ✅ NEW — App Privacy questionnaire responses
+  review.json              ✅ NEW — App Review information (contact, demo creds, notes)
+  metadata/{locale}/...    ✅ extended with marketingUrl, supportUrl, privacyPolicyUrl
+  metadata/{locale}/{platform}/screenshots.json  ✅ NEW optional — per-screen headlines for the renderer
+  assets/                  ✅ NEW — listing assets, committed (Git LFS recommended for PNGs/MP4s)
     {platform}/{locale}/{device}/screenshots/01.png ...
     {platform}/{locale}/{device}/preview.mp4
-  templates/               # NEW (optional) — HTML templates for the light renderer
+  templates/               ✅ NEW (optional) — HTML templates for the light renderer
     screenshot.html
-  metadata/{locale}/{platform}/screenshots.json  # NEW optional — per-screen headlines for the renderer
-  ship-state.json          # NEW (transient) — checkpoint for /ship resume
+  history/                 ✅ NEW — append-only operational log
+    pushes.jsonl           # one line per push to ASC: timestamp, fields, response
+    submissions.jsonl      # one line per /submit attempt: version, build, state transitions
+    audits.jsonl           # one line per /audit run: timestamp, blockers, quality issues
+  ship-state.json          🚫 NEW (transient) — checkpoint for /ship resume; mirrored into history/ on completion
 ```
 
 Rationale for the split:
 - `listing.json` holds decisions that rarely change and aren't per-locale. Grouping them mirrors how ASC presents them.
 - `privacy.json` and `review.json` are special-purpose enough that embedding them in `config.json` would muddy the schema.
-- `assets/` defaults to inside `.appstore/` but the path is configurable in `config.json` so users with existing pipelines can point at their own directories.
+- `assets/` defaults to inside `.appstore/` so they're discoverable and tracked. The path is configurable in `config.json` for users with existing pipelines, but those users are responsible for ensuring their alternate directory is also git-tracked — the toolkit will warn during `/setup` if the asset path is gitignored.
+- `history/` is the audit trail. It uses JSONL (append-only, one event per line) so concurrent operations don't conflict and `git log -p` produces a clean review. `/audit`, `/push`, and `/submit` all append here. Reading the history is how the toolkit answers "what did we tell ASC last Tuesday?"
+- `ship-state.json` is the only mutable per-run scratchpad and the only addition that's gitignored beyond credentials. When a `/ship` run completes, its summary is appended to `history/submissions.jsonl` and the scratchpad is cleared.
+
+`/setup` writes the right `.gitignore` entries (`config.local.json`, `ship-state.json`) and offers to initialize Git LFS if `assets/` will hold large binaries.
 
 ### 5.2 New MCP tools
 
@@ -162,7 +180,9 @@ Walks: select build → confirm encryption answer → confirm release strategy �
 
 **`/app-store-toolkit:ship`** — orchestrator over everything.
 
-Runs `/audit` first; bails on any blocker unless the user explicitly waives. Then: push metadata → push listing config → push privacy → push review info → upload assets → call `/submit`. State is checkpointed in `.appstore/ship-state.json` keyed by version, so a failure at minute 30 doesn't lose the prior 29 minutes of work. The user can re-run `/ship` and it resumes from the last completed step.
+Runs `/audit` first; bails on any blocker unless the user explicitly waives (the waiver is recorded in `history/audits.jsonl`). Then: push metadata → push listing config → push privacy → push review info → upload assets → call `/submit`. State is checkpointed in `.appstore/ship-state.json` keyed by version, so a failure at minute 30 doesn't lose the prior 29 minutes of work. The user can re-run `/ship` and it resumes from the last completed step. On success, the run is summarized into `history/submissions.jsonl` and the scratchpad is cleared.
+
+Every mutating tool — `asc_update_*`, `asc_set_*`, `asc_upload_*`, `asc_attach_build`, `asc_submit_for_review` — appends an entry to the appropriate `history/*.jsonl` file as part of its successful path. This happens at the MCP-tool layer, not in the skills, so direct tool calls are also captured.
 
 ### 5.4 App Privacy schema
 
@@ -260,4 +280,56 @@ This design is bounded. It will not solve:
 - Required Reason API audit and Privacy Manifest cross-check (belong to a future `/privacy` skill upgrade)
 - App Preview *video* rendering (only validation/upload)
 
-These are real gaps but each is its own design effort.
+These are real gaps but each is its own design effort. See §12 for the parking lot.
+
+## 12. Follow-on roadmap (post-M3)
+
+These items came out of the field report and surrounding discussion. They are deliberately deferred from this design but listed here so they are not lost. Each becomes its own brainstorming → spec → plan cycle when prioritized.
+
+### Round 2 — Privacy depth
+- **Privacy Manifest cross-check** (`PrivacyInfo.xcprivacy` ↔ `privacy.json` ↔ ASC).
+- **Required Reason API audit** — scan Swift/Obj-C for APIs requiring declared reasons; cross-check the manifest.
+- **Tracking domain registration** when ATT is in use.
+- **Privacy Choices URL** for CCPA-bound apps.
+- **Health Records / HealthKit** declarations as a first-class data type.
+
+### Round 3 — Post-launch ops
+- **Analytics pull** — daily impressions, downloads, conversion rate, search rank per keyword. Stored under `.appstore/analytics/` so the time series is also git-tracked.
+- **Reviews intelligence** — sentiment clustering, topic extraction, negative-spike alerts, localized reply drafts, reply templates.
+- **Submission state notifications** — webhook or `/loop`-driven Slack/Discord pings on state changes.
+- **Rejection triage** — `/app-store-toolkit:rejection-triage` skill: read rejection reason, identify implicated fields, draft fix and reviewer reply.
+
+### Round 4 — Multi-everything
+- **Multi-app workspace** — `config.json` becomes `workspace.json` with N apps; tools take an `--app` flag.
+- **Multi-account support** — multiple ASC API keys; switch without re-auth.
+- **Multi-platform parity** — macOS, tvOS, watchOS, visionOS using the same tools with a `platform` parameter.
+- **Universal Purchase management** for IAPs that span platforms.
+- **Team management** — list collaborators, invite, role awareness.
+
+### Round 5 — Marketing surface
+- **Custom Product Pages** — up to 35 per app, for ad campaigns.
+- **Product Page Optimization (PPO)** — A/B test icons, screenshots, promo text; statistical significance check; auto-declare winner.
+- **In-App Events** — create, localize, schedule, monitor, retire.
+- **Promoted IAPs** with their own screenshots.
+- **Featured icon for In-App Events** (distinct from app icon).
+- **Apple Search Ads keyword research** integration.
+
+### Round 6 — Asset pipeline depth
+- **App Preview video rendering** (Remotion-style) — currently we only validate and upload.
+- **Localized screenshot rendering** beyond the light-template starter — multi-device, light/dark, headline rotation.
+- **Asset hashing/dedup** — avoid re-uploading identical assets across locales.
+- **Alternate icons** — iOS in-app icon switching support.
+
+### Round 7 — Studio features
+- **TestFlight management** — internal/external testers, expiry, public link, Beta App Description, beta What's New.
+- **Sales and Trends** pull (daily numbers).
+- **Financial / Payments / Tax forms** management.
+- **CI integration** — `app-store-toolkit ship --dry-run` exits non-zero on missing fields, suitable for GitHub Actions.
+
+### Round 8 — Voice and consistency upgrades
+- **Voice training** — feed approved-copy examples into the voice config to improve generation.
+- **Glossary management** — brand terms that should never translate (e.g., product names, acronyms).
+- **Locale-aware quality** — CJK punctuation normalization, RTL screenshot template support, formal-register check (German *Sie*, Japanese keigo).
+- **Pre-launch wizard** — guided onboarding distinct from `/ship`, walks first-time users through every required field with sensible defaults.
+
+These rounds are not strictly ordered — Round 2 might happen before Round 3 depending on user demand. The numbering is for reference, not commitment.
