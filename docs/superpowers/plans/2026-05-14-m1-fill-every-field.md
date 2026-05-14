@@ -3806,17 +3806,43 @@ git commit -m "Bump to v0.2.0 — M1 (fill every ASC field) complete"
 
 ---
 
-## After M1 Lands
+## After M1 Lands — What Comes Next
 
-The next plan to write is M2: assets. The spec (§5.2 — M2 row) defines:
+This plan is **M1 only**. M2 and M3 are scoped in the design spec but intentionally do not have implementation plans yet — they should be planned *after* M1 is real, so they can incorporate what we learn.
 
-- `asc_upload_screenshot`, `asc_upload_app_preview`, list/delete pairs
-- `assets_validate_dimensions` against a shipped catalog
-- `assets_render_template` (Puppeteer-based, opt-in install)
-- `.appstore/assets/{platform}/{locale}/{device}/` directory structure
-- `metadata/{locale}/{platform}/screenshots.json` for templating headlines
-- Updates to `/setup`, `/push`, `/pull`, `/status` for assets
+### The full three-milestone arc (canonical source: the design spec)
 
-After M2 lands, M3 (submit) covers `asc_list_builds`, `asc_attach_build`, `asc_set_release_strategy`, `asc_submit_for_review`, `asc_get_submission_state`, `asc_create_version`, plus the `/audit`, `/submit`, and `/ship` skills — including the headline vision-driven cross-surface consistency check.
+The submission-readiness ladder is documented in `docs/superpowers/specs/2026-05-14-submission-readiness-design.md`. Sections to read:
 
-Both M2 and M3 plans should be written following the same TDD-per-task structure as this plan, after M1 is real and we've learned what stuck and what didn't.
+- **§4** — the three milestones at a glance (M1 fill every field, M2 assets, M3 submit)
+- **§5.2** — per-milestone tool tables (which MCP tools land in each milestone)
+- **§5.3** — the new skills (`/audit`, `/submit`, `/ship`), all M3
+- **§5.4** — the App Privacy schema (used by M1; included here for completeness)
+- **§5.5** — the asset templating design (M2)
+- **§11** — explicit non-goals
+- **§12** — 8 rounds of follow-on work that came up in the original brainstorming and is deliberately deferred (privacy depth, post-launch ops, multi-everything, marketing surface, asset pipeline depth, studio features, voice/consistency)
+
+### M2 — "Toolkit handles assets" (scoped in spec §5.2 M2 row)
+
+Headline tools: `asc_upload_screenshot`, `asc_upload_app_preview`, `asc_list_screenshots`, `asc_delete_screenshot`, `asc_list_app_previews`, `asc_delete_app_preview`, `assets_validate_dimensions`, `assets_render_template`. Plus `.appstore/assets/{platform}/{locale}/{device}/` directory, `metadata/{locale}/{platform}/screenshots.json` for templating headlines, and skill updates for `/setup`, `/push`, `/pull`, `/status`.
+
+### M3 — "Toolkit submits" (scoped in spec §5.2 M3 row + §5.3)
+
+Headline tools: `asc_list_builds`, `asc_attach_build`, `asc_set_release_strategy`, `asc_submit_for_review`, `asc_get_submission_state`, `asc_create_version`. Plus three new skills:
+
+- `/app-store-toolkit:audit` — locale parity, char limits, required-field presence, asset dimensions, voice drift, App Review phrase risk, and the **vision-driven cross-surface consistency check** (the model itself reads screenshot PNGs and compares to copy across all locales — this is the headline differentiator).
+- `/app-store-toolkit:submit` — build attach + encryption + release strategy + review info + submit.
+- `/app-store-toolkit:ship` — orchestrator over everything, checkpointed in `.appstore/ship-state.json`.
+
+### How to plan M2 and M3 (when ready)
+
+Each milestone gets its own brainstorming → spec-update (or new spec) → plan cycle. The recommended flow:
+
+1. **Open a fresh session** in the repo.
+2. **Confirm M1 is shipped**: `git log --oneline | grep "v0.2.0"` or check `.claude-plugin/plugin.json` version.
+3. **Brainstorm M2** with the user: invoke `superpowers:brainstorming`. Reference the existing spec §5.2 M2 row as the starting point — most decisions are already made; the brainstorm is for any details that surfaced during M1 implementation. The brainstorming output may be a small spec update or, if M2's shape changed materially, its own spec doc at `docs/superpowers/specs/YYYY-MM-DD-m2-assets-design.md`.
+4. **Write the plan** with `superpowers:writing-plans` saved to `docs/superpowers/plans/YYYY-MM-DD-m2-assets.md`, following the same TDD-per-task structure as this plan.
+5. **Execute** with the same subagent-driven approach used for M1.
+6. **Repeat for M3** after M2 lands.
+
+If you (the executor) finish M1 and feel the urge to start brainstorming M2 yourself, **don't** — that's a conversation the user wants to have. Report M1 complete and stop.
