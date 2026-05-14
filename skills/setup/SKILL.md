@@ -102,13 +102,55 @@ Ask about App Store Connect API access:
 
 **STOP HERE and wait for the user's response.**
 
-## Step 5: Save & Confirm
+## Step 5: Save Config
 
 Once all info is gathered:
 
 1. Call `store_write_config` with the collected settings
 2. If API credentials were provided, call `store_write_local_config`
-3. Display a summary:
+
+## Stage: Seed listing.json, privacy.json, review.json
+
+After credentials are saved, ask the user whether to seed the new local-store files with safe defaults.
+
+Conversational beats:
+1. "I'll create three new files in `.appstore/` so you can fill in the listing configuration as you go: `listing.json`, `privacy.json`, `review.json`. Each starts empty / safe-default. Sound good?" (yes/no)
+2. If yes:
+   - Use `store_write_listing` with the result of calling `defaultListingConfig()` (or supply the literal default JSON):
+     ```json
+     {
+       "categories": { "primary": "PRODUCTIVITY" },
+       "ageRating": { "answers": [] },
+       "pricing": { "defaultTier": 0, "perTerritory": [] },
+       "availability": { "territories": ["US"] },
+       "encryption": { "usesEncryption": false, "exemptions": [] }
+     }
+     ```
+   - Use `store_write_privacy` with `{ "collectsData": false, "tracking": { "enabled": false, "domains": [] }, "dataTypes": [] }`.
+   - Use `store_write_review` with `{ "contact": { "firstName": "", "lastName": "", "email": "", "phone": "" }, "demo": { "required": false }, "notes": "" }`.
+3. Confirm: "Seeded. You can edit these files directly in your editor or use the relevant skills (e.g., `/app-store-toolkit:privacy` to revisit privacy answers)."
+
+## Stage: Git LFS prompt for .appstore/assets/
+
+After seeding, ask:
+1. "Will you store screenshots and App Preview videos in `.appstore/assets/`? (Recommended for git-tracking your listing assets.)" (yes/no)
+2. If yes:
+   - Check if Git LFS is installed: `git lfs version`. If the command fails, tell the user to install Git LFS (https://git-lfs.com/) and re-run setup.
+   - If installed, run:
+     ```bash
+     git lfs install
+     git lfs track "*.png" "*.mp4" "*.mov"
+     git add .gitattributes
+     ```
+   - Confirm: "Git LFS configured for PNG, MP4, MOV files in this repo."
+
+## Stage: .gitignore confirmation
+
+`ensureAppstoreDir` automatically writes `.appstore/.gitignore` with `config.local.json` and `ship-state.json`. Tell the user this happened so they understand what's intentionally untracked.
+
+## Step 6: Confirm
+
+Display a summary:
 
 ```
 Setup complete!
@@ -121,6 +163,6 @@ Setup complete!
   Data dir:     .appstore/
 ```
 
-4. Suggest next steps based on what was configured:
+Suggest next steps based on what was configured:
    - If API configured: "Run `/app-store-toolkit:pull` to fetch your current App Store metadata"
    - Always: "Run `/app-store-toolkit:aso` to generate ASO-optimized metadata"
