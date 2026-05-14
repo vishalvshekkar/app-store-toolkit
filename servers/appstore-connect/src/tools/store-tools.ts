@@ -7,7 +7,16 @@ import {
   StoreReadConfigSchema,
   StoreWriteConfigSchema,
   StoreWriteLocalConfigSchema,
+  StoreReadListingSchema,
+  StoreWriteListingSchema,
+  StoreReadPrivacySchema,
+  StoreWritePrivacySchema,
+  StoreReadReviewSchema,
+  StoreWriteReviewSchema,
 } from "./schemas.js";
+import { readListing, writeListing } from "../store/listing.js";
+import { readPrivacy, writePrivacy } from "../store/privacy.js";
+import { readReview, writeReview } from "../store/review.js";
 import {
   readMetadataField,
   writeMetadataField,
@@ -463,6 +472,132 @@ export function registerStoreTools(server: McpServer): void {
               }),
             },
           ],
+        };
+      } catch (e: any) {
+        return {
+          content: [{ type: "text" as const, text: `Error: ${e.message}` }],
+          isError: true,
+        };
+      }
+    }
+  );
+
+  // --- store_read_listing ---
+  server.tool(
+    "store_read_listing",
+    "Read the local listing config (categories, age rating, pricing, availability, encryption)",
+    StoreReadListingSchema.shape,
+    async () => {
+      try {
+        const cfg = await readListing();
+        return {
+          content: [
+            { type: "text" as const, text: JSON.stringify({ listing: cfg }, null, 2) },
+          ],
+        };
+      } catch (e: any) {
+        return {
+          content: [{ type: "text" as const, text: `Error: ${e.message}` }],
+          isError: true,
+        };
+      }
+    }
+  );
+
+  // --- store_write_listing ---
+  server.tool(
+    "store_write_listing",
+    "Write the local listing config",
+    StoreWriteListingSchema.shape,
+    async ({ listing }) => {
+      try {
+        await writeListing(listing as any);
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ success: true }, null, 2) }],
+        };
+      } catch (e: any) {
+        return {
+          content: [{ type: "text" as const, text: `Error: ${e.message}` }],
+          isError: true,
+        };
+      }
+    }
+  );
+
+  // --- store_read_privacy ---
+  server.tool(
+    "store_read_privacy",
+    "Read the local App Privacy responses",
+    StoreReadPrivacySchema.shape,
+    async () => {
+      try {
+        const cfg = await readPrivacy();
+        return {
+          content: [
+            { type: "text" as const, text: JSON.stringify({ privacy: cfg }, null, 2) },
+          ],
+        };
+      } catch (e: any) {
+        return {
+          content: [{ type: "text" as const, text: `Error: ${e.message}` }],
+          isError: true,
+        };
+      }
+    }
+  );
+
+  // --- store_write_privacy ---
+  server.tool(
+    "store_write_privacy",
+    "Write the local App Privacy responses (validates against the taxonomy)",
+    StoreWritePrivacySchema.shape,
+    async ({ responses }) => {
+      try {
+        await writePrivacy(responses as any);
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ success: true }, null, 2) }],
+        };
+      } catch (e: any) {
+        return {
+          content: [{ type: "text" as const, text: `Error: ${e.message}` }],
+          isError: true,
+        };
+      }
+    }
+  );
+
+  // --- store_read_review ---
+  server.tool(
+    "store_read_review",
+    "Read the local App Review information",
+    StoreReadReviewSchema.shape,
+    async () => {
+      try {
+        const cfg = await readReview();
+        return {
+          content: [
+            { type: "text" as const, text: JSON.stringify({ review: cfg }, null, 2) },
+          ],
+        };
+      } catch (e: any) {
+        return {
+          content: [{ type: "text" as const, text: `Error: ${e.message}` }],
+          isError: true,
+        };
+      }
+    }
+  );
+
+  // --- store_write_review ---
+  server.tool(
+    "store_write_review",
+    "Write the local App Review information (validates demo username/password)",
+    StoreWriteReviewSchema.shape,
+    async ({ review }) => {
+      try {
+        await writeReview(review as any);
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ success: true }, null, 2) }],
         };
       } catch (e: any) {
         return {

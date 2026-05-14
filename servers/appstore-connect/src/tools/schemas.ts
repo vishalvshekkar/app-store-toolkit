@@ -171,3 +171,16 @@ export const AscSetPrivacyResponsesSchema = z.object({
     })
     .describe("Full privacy responses; replaces existing ASC declarations"),
 });
+
+export const StoreReadListingSchema = z.object({});
+export const StoreWriteListingSchema = z.object({
+  listing: z.unknown().describe("Full ListingConfig object"),
+});
+export const StoreReadPrivacySchema = z.object({});
+export const StoreWritePrivacySchema = z.object({
+  responses: z.unknown().describe("Full PrivacyResponses object"),
+});
+export const StoreReadReviewSchema = z.object({});
+export const StoreWriteReviewSchema = z.object({
+  review: z.unknown().describe("Full ReviewInfo object"),
+});
