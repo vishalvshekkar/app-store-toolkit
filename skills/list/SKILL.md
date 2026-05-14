@@ -30,6 +30,12 @@ Parse `$ARGUMENTS` to determine what to list. The first word is the type:
 - `iap` — List IAP products with display names and descriptions
 - `locales` — Show configured locales with completion status
 - `history <field>` — Show full iteration history for a specific field
+- `listing` — show the contents of `.appstore/listing.json` (categories, age rating, pricing, availability, encryption)
+- `privacy` — show `.appstore/privacy.json` (App Privacy responses)
+- `review` — show `.appstore/review.json` (App Review information)
+- `history pushes` — show recent entries from `.appstore/history/pushes.jsonl`
+- `history audits` — show recent entries from `.appstore/history/audits.jsonl`
+- `history submissions` — show recent entries from `.appstore/history/submissions.jsonl`
 
 If no type is given, default to `metadata`.
 

@@ -69,3 +69,24 @@ Based on the status:
 - If remote_newer exists: "Run `/app-store-toolkit:pull` to fetch remote updates"
 - If conflicts exist: "Review conflicts and decide which version to keep"
 - If all in sync: "Everything is in sync with App Store Connect"
+
+## Listing config drift
+
+Call `store_read_listing` to get the local `ListingConfig`. Compare against ASC by fetching:
+- Categories from `appInfos[].attributes`
+- Age rating from `ageRatingDeclarations`
+- Encryption from the attached build
+
+Show a per-section diff: ✓ in sync, ⚠ differs, ✗ remote missing local field.
+
+## Privacy drift
+
+Call `store_read_privacy` for the local `PrivacyResponses`. Compare against `GET /v1/apps/{appId}/dataUsages`. Show a per-data-type diff.
+
+## Review info drift
+
+Call `store_read_review` for the local `ReviewInfo`. Compare against `appStoreReviewDetails`. Diff each field.
+
+## URL fields drift (per locale)
+
+For each locale, compare local `marketingUrl`/`supportUrl`/`privacyPolicyUrl` against the corresponding ASC fields.
