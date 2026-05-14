@@ -20,8 +20,13 @@ import {
 import { getCustomerReviews, postReviewResponse } from "../api/reviews.js";
 import { setCategories } from "../api/categories.js";
 import { setAgeRatingDeclaration } from "../api/age-rating.js";
+import { setAppPriceSchedule } from "../api/pricing.js";
 import { appendHistoryEntry } from "../store/history.js";
-import { AscSetCategoriesSchema, AscSetAgeRatingSchema } from "./schemas.js";
+import {
+  AscSetCategoriesSchema,
+  AscSetAgeRatingSchema,
+  AscSetPricingSchema,
+} from "./schemas.js";
 import { hasCredentials } from "../auth/jwt.js";
 
 function noCredentialsError() {
@@ -568,6 +573,48 @@ export function registerAscTools(server: McpServer): void {
           tool: "asc_set_age_rating",
           target: { declaration_id },
           payload: { answers },
+          result: "error",
+          error: e.message,
+        });
+        return {
+          content: [{ type: "text" as const, text: `Error: ${e.message}` }],
+          isError: true,
+        };
+      }
+    }
+  );
+
+  // --- asc_set_pricing ---
+  server.tool(
+    "asc_set_pricing",
+    "Set the app's price schedule (USA base tier + optional per-territory overrides)",
+    AscSetPricingSchema.shape,
+    async ({ app_id, default_tier, per_territory }) => {
+      try {
+        if (!(await hasCredentials())) return noCredentialsError();
+        const updated = await setAppPriceSchedule(app_id, {
+          defaultTier: default_tier,
+          perTerritory: per_territory.map((p) => ({
+            territory: p.territory,
+            priceTier: p.price_tier,
+          })),
+        });
+        await appendHistoryEntry("pushes", {
+          tool: "asc_set_pricing",
+          target: { app_id },
+          payload: { default_tier, per_territory },
+          result: "success",
+        });
+        return {
+          content: [
+            { type: "text" as const, text: JSON.stringify({ success: true, id: updated.id }, null, 2) },
+          ],
+        };
+      } catch (e: any) {
+        await appendHistoryEntry("pushes", {
+          tool: "asc_set_pricing",
+          target: { app_id },
+          payload: { default_tier, per_territory },
           result: "error",
           error: e.message,
         });

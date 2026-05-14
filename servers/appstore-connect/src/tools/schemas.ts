@@ -107,3 +107,17 @@ export const AscSetAgeRatingSchema = z.object({
     )
     .describe("Full set of answers to push"),
 });
+
+export const AscSetPricingSchema = z.object({
+  app_id: z.string().describe("The app's App Store Connect ID"),
+  default_tier: z.number().int().describe("Apple price tier id used as USA base"),
+  per_territory: z
+    .array(
+      z.object({
+        territory: z.string().describe("ISO 3166-1 alpha-2 territory code"),
+        price_tier: z.number().int(),
+      })
+    )
+    .default([])
+    .describe("Optional per-territory tier overrides"),
+});
