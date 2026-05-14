@@ -128,3 +128,24 @@ export const AscSetAvailabilitySchema = z.object({
     .array(z.string())
     .describe("ISO 3166-1 alpha-2 territory codes the app should be available in"),
 });
+
+export const AscSetPrivacyResponsesSchema = z.object({
+  app_id: z.string().describe("The app's App Store Connect ID"),
+  responses: z
+    .object({
+      collectsData: z.boolean(),
+      tracking: z.object({
+        enabled: z.boolean(),
+        domains: z.array(z.string()),
+      }),
+      dataTypes: z.array(
+        z.object({
+          type: z.string(),
+          linkedToUser: z.boolean(),
+          usedForTracking: z.boolean(),
+          purposes: z.array(z.string()),
+        })
+      ),
+    })
+    .describe("Full privacy responses; replaces existing ASC declarations"),
+});

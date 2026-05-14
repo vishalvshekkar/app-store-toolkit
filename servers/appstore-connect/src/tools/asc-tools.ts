@@ -22,12 +22,14 @@ import { setCategories } from "../api/categories.js";
 import { setAgeRatingDeclaration } from "../api/age-rating.js";
 import { setAppPriceSchedule } from "../api/pricing.js";
 import { setAppAvailability } from "../api/availability.js";
+import { replaceAppDataUsages } from "../api/privacy.js";
 import { appendHistoryEntry } from "../store/history.js";
 import {
   AscSetCategoriesSchema,
   AscSetAgeRatingSchema,
   AscSetPricingSchema,
   AscSetAvailabilitySchema,
+  AscSetPrivacyResponsesSchema,
 } from "./schemas.js";
 import { hasCredentials } from "../auth/jwt.js";
 
@@ -617,6 +619,45 @@ export function registerAscTools(server: McpServer): void {
           tool: "asc_set_pricing",
           target: { app_id },
           payload: { default_tier, per_territory },
+          result: "error",
+          error: e.message,
+        });
+        return {
+          content: [{ type: "text" as const, text: `Error: ${e.message}` }],
+          isError: true,
+        };
+      }
+    }
+  );
+
+  // --- asc_set_privacy_responses ---
+  server.tool(
+    "asc_set_privacy_responses",
+    "Replace the app's App Privacy declarations with the supplied responses",
+    AscSetPrivacyResponsesSchema.shape,
+    async ({ app_id, responses }) => {
+      try {
+        if (!(await hasCredentials())) return noCredentialsError();
+        await replaceAppDataUsages(app_id, responses as any);
+        await appendHistoryEntry("pushes", {
+          tool: "asc_set_privacy_responses",
+          target: { app_id },
+          payload: { responses },
+          result: "success",
+        });
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: JSON.stringify({ success: true, app_id, replaced: true }, null, 2),
+            },
+          ],
+        };
+      } catch (e: any) {
+        await appendHistoryEntry("pushes", {
+          tool: "asc_set_privacy_responses",
+          target: { app_id },
+          payload: { responses },
           result: "error",
           error: e.message,
         });
