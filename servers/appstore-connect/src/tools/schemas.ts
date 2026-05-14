@@ -89,3 +89,9 @@ export const StoreWriteLocalConfigSchema = z.object({
   issuer_id: z.string().describe("App Store Connect Issuer ID"),
   p8_key_path: z.string().describe("Absolute path to .p8 private key file"),
 });
+
+export const AscSetCategoriesSchema = z.object({
+  app_info_id: z.string().describe("The editable appInfo resource ID"),
+  primary: z.string().describe("Primary category enum (e.g., PRODUCTIVITY)"),
+  secondary: z.string().optional().describe("Optional secondary category"),
+});

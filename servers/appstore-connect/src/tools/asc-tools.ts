@@ -18,6 +18,9 @@ import {
   updateIAPLocalization,
 } from "../api/iap.js";
 import { getCustomerReviews, postReviewResponse } from "../api/reviews.js";
+import { setCategories } from "../api/categories.js";
+import { appendHistoryEntry } from "../store/history.js";
+import { AscSetCategoriesSchema } from "./schemas.js";
 import { hasCredentials } from "../auth/jwt.js";
 
 function noCredentialsError() {
@@ -480,6 +483,54 @@ export function registerAscTools(server: McpServer): void {
           ],
         };
       } catch (e: any) {
+        return {
+          content: [{ type: "text" as const, text: `Error: ${e.message}` }],
+          isError: true,
+        };
+      }
+    }
+  );
+
+  // --- asc_set_categories ---
+  server.tool(
+    "asc_set_categories",
+    "Set primary and optional secondary App Store category",
+    AscSetCategoriesSchema.shape,
+    async ({ app_info_id, primary, secondary }) => {
+      try {
+        if (!(await hasCredentials())) return noCredentialsError();
+        const updated = await setCategories(app_info_id, { primary, secondary });
+        await appendHistoryEntry("pushes", {
+          tool: "asc_set_categories",
+          target: { app_info_id },
+          payload: { primary, secondary },
+          result: "success",
+        });
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: JSON.stringify(
+                {
+                  success: true,
+                  id: updated.id,
+                  primaryCategory: updated.attributes.primaryCategory,
+                  secondaryCategory: updated.attributes.secondaryCategory,
+                },
+                null,
+                2
+              ),
+            },
+          ],
+        };
+      } catch (e: any) {
+        await appendHistoryEntry("pushes", {
+          tool: "asc_set_categories",
+          target: { app_info_id },
+          payload: { primary, secondary },
+          result: "error",
+          error: e.message,
+        });
         return {
           content: [{ type: "text" as const, text: `Error: ${e.message}` }],
           isError: true,
