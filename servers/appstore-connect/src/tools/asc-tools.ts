@@ -30,11 +30,15 @@ import { replaceAppDataUsages } from "../api/privacy.js";
 import { setAppStoreReviewDetail } from "../api/review-info.js";
 import { setBuildEncryption } from "../api/encryption.js";
 import {
+  listScreenshots,
+  deleteScreenshot,
   reserveScreenshot,
   putScreenshotBytes,
   commitScreenshot,
 } from "../api/screenshots.js";
 import {
+  listAppPreviews,
+  deleteAppPreview,
   reserveAppPreview,
   commitAppPreview,
   secondsToTimeCode,
@@ -54,6 +58,10 @@ import {
   AscSetEncryptionComplianceSchema,
   AscUploadScreenshotSchema,
   AscUploadAppPreviewSchema,
+  AscListScreenshotsSchema,
+  AscListAppPreviewsSchema,
+  AscDeleteScreenshotSchema,
+  AscDeleteAppPreviewSchema,
 } from "./schemas.js";
 import { hasCredentials } from "../auth/jwt.js";
 
@@ -1103,6 +1111,100 @@ export function registerAscTools(server: McpServer): void {
           content: [{ type: "text" as const, text: `Error: ${e.message}` }],
           isError: true,
         };
+      }
+    }
+  );
+
+  // --- asc_list_screenshots ---
+  server.tool(
+    "asc_list_screenshots",
+    "List screenshots in an appScreenshotSet",
+    AscListScreenshotsSchema.shape,
+    async ({ set_id }) => {
+      try {
+        if (!(await hasCredentials())) return noCredentialsError();
+        const items = await listScreenshots(set_id);
+        return { content: [{ type: "text" as const, text: JSON.stringify(items, null, 2) }] };
+      } catch (e: any) {
+        return { content: [{ type: "text" as const, text: `Error: ${e.message}` }], isError: true };
+      }
+    }
+  );
+
+  // --- asc_list_app_previews ---
+  server.tool(
+    "asc_list_app_previews",
+    "List app previews in an appPreviewSet",
+    AscListAppPreviewsSchema.shape,
+    async ({ set_id }) => {
+      try {
+        if (!(await hasCredentials())) return noCredentialsError();
+        const items = await listAppPreviews(set_id);
+        return { content: [{ type: "text" as const, text: JSON.stringify(items, null, 2) }] };
+      } catch (e: any) {
+        return { content: [{ type: "text" as const, text: `Error: ${e.message}` }], isError: true };
+      }
+    }
+  );
+
+  // --- asc_delete_screenshot ---
+  server.tool(
+    "asc_delete_screenshot",
+    "Delete a screenshot from ASC and null the matching lock entry",
+    AscDeleteScreenshotSchema.shape,
+    async ({ asset_id, locale, platform, device }) => {
+      try {
+        if (!(await hasCredentials())) return noCredentialsError();
+        await deleteScreenshot(asset_id);
+        const lock = await readAssetsLock(locale, platform);
+        if (lock?.screenshots[device]) {
+          for (const entry of lock.screenshots[device]) {
+            if (entry.asc_id === asset_id) entry.asc_id = null;
+          }
+          await writeAssetsLock(locale, platform, lock);
+        }
+        try {
+          await appendHistoryEntry("pushes", {
+            tool: "asc_delete_screenshot",
+            target: { asset_id, locale, platform, device },
+            payload: {},
+            result: "success",
+          });
+        } catch { /* best-effort */ }
+        return { content: [{ type: "text" as const, text: `Deleted screenshot ${asset_id}` }] };
+      } catch (e: any) {
+        return { content: [{ type: "text" as const, text: `Error: ${e.message}` }], isError: true };
+      }
+    }
+  );
+
+  // --- asc_delete_app_preview ---
+  server.tool(
+    "asc_delete_app_preview",
+    "Delete an app preview from ASC and null the matching lock entry",
+    AscDeleteAppPreviewSchema.shape,
+    async ({ asset_id, locale, platform, device }) => {
+      try {
+        if (!(await hasCredentials())) return noCredentialsError();
+        await deleteAppPreview(asset_id);
+        const lock = await readAssetsLock(locale, platform);
+        if (lock?.previews[device]) {
+          for (const entry of lock.previews[device]) {
+            if (entry.asc_id === asset_id) entry.asc_id = null;
+          }
+          await writeAssetsLock(locale, platform, lock);
+        }
+        try {
+          await appendHistoryEntry("pushes", {
+            tool: "asc_delete_app_preview",
+            target: { asset_id, locale, platform, device },
+            payload: {},
+            result: "success",
+          });
+        } catch { /* best-effort */ }
+        return { content: [{ type: "text" as const, text: `Deleted app preview ${asset_id}` }] };
+      } catch (e: any) {
+        return { content: [{ type: "text" as const, text: `Error: ${e.message}` }], isError: true };
       }
     }
   );

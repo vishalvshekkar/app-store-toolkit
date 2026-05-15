@@ -212,3 +212,20 @@ export const AscUploadAppPreviewSchema = z.object({
   device: z.string(),
   cover_frame_seconds: z.number().optional().describe("Cover frame timestamp in seconds"),
 });
+
+export const AscListScreenshotsSchema = z.object({
+  set_id: z.string().describe("The appScreenshotSet resource ID"),
+});
+
+export const AscListAppPreviewsSchema = z.object({
+  set_id: z.string().describe("The appPreviewSet resource ID"),
+});
+
+export const AscDeleteScreenshotSchema = z.object({
+  asset_id: z.string().describe("The appScreenshot resource ID"),
+  locale: z.string().describe("Locale (to update the lock)"),
+  platform: z.string().describe("Platform (to update the lock)"),
+  device: z.string().describe("Device (to update the lock)"),
+});
+
+export const AscDeleteAppPreviewSchema = AscDeleteScreenshotSchema;
