@@ -31,6 +31,8 @@ import { setAppStoreReviewDetail } from "../api/review-info.js";
 import { setBuildEncryption } from "../api/encryption.js";
 import { listBuilds, attachBuildToVersion } from "../api/builds.js";
 import { setReleaseStrategy, createVersion } from "../api/release.js";
+import { submitForReview } from "../api/submission.js";
+import { ascRequest } from "../api/client.js";
 import {
   listScreenshots,
   deleteScreenshot,
@@ -64,6 +66,7 @@ import {
   AscAttachBuildSchema,
   AscSetReleaseStrategySchema,
   AscCreateVersionSchema,
+  AscSubmitForReviewSchema,
   AscUploadScreenshotSchema,
   AscUploadAppPreviewSchema,
   AscListScreenshotsSchema,
@@ -1443,6 +1446,109 @@ export function registerAscTools(server: McpServer): void {
         } catch { /* best-effort */ }
         return {
           content: [{ type: "text" as const, text: JSON.stringify(result, null, 2) }],
+        };
+      } catch (e: any) {
+        return { content: [{ type: "text" as const, text: `Error: ${e.message}` }], isError: true };
+      }
+    }
+  );
+
+  // --- asc_submit_for_review ---
+  server.tool(
+    "asc_submit_for_review",
+    "Submit a version for App Review. dry_run=true performs readiness checks and returns without calling ASC.",
+    AscSubmitForReviewSchema.shape,
+    async ({ app_id, version_id, dry_run }) => {
+      try {
+        if (!(await hasCredentials())) return noCredentialsError();
+
+        if (dry_run) {
+          const blockers: { check: string; remediation: string }[] = [];
+
+          // Fetch the version (with build relationship)
+          const versionRes = await ascRequest(`/v1/appStoreVersions/${version_id}`);
+          const version = Array.isArray(versionRes.data) ? versionRes.data[0] : versionRes.data;
+          const buildRel = (version as any)?.relationships?.build?.data;
+          const releaseType = (version as any)?.attributes?.releaseType ?? "AFTER_APPROVAL";
+          let buildId: string | null = null;
+
+          if (!buildRel) {
+            blockers.push({ check: "no-build-attached", remediation: "Run asc_attach_build first" });
+          } else {
+            buildId = buildRel.id;
+            const buildRes = await ascRequest(`/v1/builds/${buildId}`);
+            const build = Array.isArray(buildRes.data) ? buildRes.data[0] : buildRes.data;
+            if ((build as any)?.attributes?.processingState !== "VALID") {
+              blockers.push({ check: "build-not-valid", remediation: "Wait for the build to finish processing" });
+            }
+            if (
+              (build as any)?.attributes?.usesNonExemptEncryption === undefined ||
+              (build as any)?.attributes?.usesNonExemptEncryption === null
+            ) {
+              blockers.push({ check: "encryption-not-set", remediation: "Run asc_set_encryption_compliance" });
+            }
+          }
+
+          // Privacy: app's dataUsages.dataPublishState must be PUBLISHED
+          const privRes = await ascRequest(`/v1/apps/${app_id}/dataUsages`);
+          const privData = Array.isArray(privRes.data) ? privRes.data : [privRes.data];
+          if (privData.length === 0 || (privData[0] as any)?.attributes?.dataPublishState !== "PUBLISHED") {
+            blockers.push({ check: "privacy-not-set", remediation: "Run asc_set_privacy_responses" });
+          }
+
+          // Review info: version's appStoreReviewDetail must have contact + notes
+          const reviewRes = await ascRequest(`/v1/appStoreVersions/${version_id}/appStoreReviewDetail`);
+          const review = Array.isArray(reviewRes.data) ? reviewRes.data[0] : reviewRes.data;
+          const reviewAttrs = (review as any)?.attributes ?? {};
+          if (!reviewAttrs.contactFirstName || !reviewAttrs.contactEmail || !reviewAttrs.reviewNotes) {
+            blockers.push({ check: "review-info-incomplete", remediation: "Run asc_set_review_info" });
+          }
+
+          // Categories: app's primary appInfo must have a primaryCategory
+          const appInfoRes = await ascRequest(`/v1/apps/${app_id}/appInfos`);
+          const appInfos = Array.isArray(appInfoRes.data) ? appInfoRes.data : [appInfoRes.data];
+          if (appInfos.length === 0 || !(appInfos[0] as any)?.attributes?.primaryCategory) {
+            blockers.push({ check: "categories-not-set", remediation: "Run asc_set_categories" });
+          }
+
+          return {
+            content: [
+              {
+                type: "text" as const,
+                text: JSON.stringify(
+                  {
+                    ready: blockers.length === 0,
+                    blockers,
+                    would_submit: {
+                      app_id,
+                      version_id,
+                      build_id: buildId,
+                      release_strategy: releaseType,
+                      automatic_release: releaseType === "AFTER_APPROVAL",
+                    },
+                  },
+                  null,
+                  2
+                ),
+              },
+            ],
+          };
+        }
+
+        // Real submit
+        const result = await submitForReview(version_id);
+        try {
+          await appendHistoryEntry("submissions", {
+            tool: "asc_submit_for_review",
+            target: { app_id, version_id },
+            payload: { submission_id: result.submission_id },
+            result: "success",
+          });
+        } catch { /* best-effort */ }
+        return {
+          content: [
+            { type: "text" as const, text: JSON.stringify({ submitted: true, ...result }, null, 2) },
+          ],
         };
       } catch (e: any) {
         return { content: [{ type: "text" as const, text: `Error: ${e.message}` }], isError: true };

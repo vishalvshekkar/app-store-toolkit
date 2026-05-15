@@ -271,3 +271,9 @@ export const AscCreateVersionSchema = z.object({
   version_string: z.string().describe("Semantic version like '1.1.0'"),
   platform: z.enum(["IOS", "MAC_OS", "TV_OS"]).default("IOS"),
 });
+
+export const AscSubmitForReviewSchema = z.object({
+  app_id: z.string(),
+  version_id: z.string(),
+  dry_run: z.boolean().default(false).describe("If true, run readiness checks and return without submitting"),
+});
