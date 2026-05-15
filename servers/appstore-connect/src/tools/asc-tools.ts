@@ -1368,6 +1368,32 @@ export function registerAscTools(server: McpServer): void {
       }
     }
   );
+
+  // --- asc_attach_build ---
+  server.tool(
+    "asc_attach_build",
+    "Attach a TestFlight build to an editable App Store version",
+    AscAttachBuildSchema.shape,
+    async ({ version_id, build_id }) => {
+      try {
+        if (!(await hasCredentials())) return noCredentialsError();
+        await attachBuildToVersion(version_id, build_id);
+        try {
+          await appendHistoryEntry("pushes", {
+            tool: "asc_attach_build",
+            target: { version_id, build_id },
+            payload: {},
+            result: "success",
+          });
+        } catch { /* best-effort */ }
+        return {
+          content: [{ type: "text" as const, text: `Attached build ${build_id} to version ${version_id}` }],
+        };
+      } catch (e: any) {
+        return { content: [{ type: "text" as const, text: `Error: ${e.message}` }], isError: true };
+      }
+    }
+  );
 }
 
 function errorPayload(err: {
