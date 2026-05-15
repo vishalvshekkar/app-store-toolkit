@@ -1,6 +1,6 @@
 ---
 name: app-store-toolkit:setup
-description: Configure app-store-toolkit with your app's bundle ID, API credentials, voice/tone preferences, and locale settings
+description: Configure app-store-toolkit — bundle ID, API credentials, voice/tone, locales — and seed listing/privacy/review defaults plus optional Git LFS for asset storage
 arguments:
   - name: bundle_id
     description: Your app's bundle identifier (e.g., com.company.app)

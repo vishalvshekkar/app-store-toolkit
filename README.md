@@ -45,7 +45,7 @@ claude plugin install https://github.com/vishalvshekkar/app-store-toolkit
 # 4. Preview what changed
 /app-store-toolkit:status
 
-# 5. Push to App Store Connect
+# 5. Push to App Store Connect (each mutation is appended to .appstore/history/pushes.jsonl)
 /app-store-toolkit:push
 ```
 
@@ -88,7 +88,7 @@ claude plugin install https://github.com/vishalvshekkar/app-store-toolkit
 
 | Command | Description |
 |---------|-------------|
-| `/app-store-toolkit:list` | List metadata, descriptions, changelogs, IAPs, locales, or history |
+| `/app-store-toolkit:list` | List metadata, descriptions, changelogs, IAPs, locales, listing/privacy/review, or history (pushes) |
 
 ## Configuration
 
@@ -118,6 +118,35 @@ After running `/app-store-toolkit:setup`, two config files are created:
   "p8_key_path": "/path/to/AuthKey.p8"
 }
 ```
+
+## What lives in `.appstore/`
+
+The plugin keeps everything it knows about your listing in `.appstore/`. Commit this directory (minus `config.local.json`) so your repo is the source of truth for what's on App Store Connect.
+
+```
+.appstore/
+├── config.json              # bundle_id, platforms, locales, voice (committed)
+├── config.local.json        # API credentials (gitignored)
+├── listing.json             # categories, age rating, pricing, availability, encryption
+├── privacy.json             # App Privacy questionnaire responses
+├── review.json              # App Review contact, demo creds, notes
+├── metadata/                # Per-locale name, subtitle, keywords, description, etc.
+├── assets/                  # Screenshots, app previews (use Git LFS for large files)
+└── history/
+    └── pushes.jsonl         # Append-only audit log of every ASC mutation
+```
+
+### Listing config (`listing.json`)
+Primary and secondary App Store categories, age rating questionnaire answers, pricing tier (with per-territory overrides), territory availability, and the default encryption-compliance answer for new builds. Edited via `/app-store-toolkit:setup` or directly, then synced with `/app-store-toolkit:push`.
+
+### App Privacy (`privacy.json`)
+Your App Privacy "nutrition label" answers — whether you collect data, which data types, the purposes for each, and tracking/domain disclosures. Validated at write time against Apple's taxonomy: every declared data type needs at least one purpose, `collectsData=false` forbids declared types, and `tracking.enabled=false` forbids domains. Use `/app-store-toolkit:privacy` to generate a draft from your source code.
+
+### App Review info (`review.json`)
+The contact, demo credentials, and reviewer notes that App Store Connect requires for review. Passwords are redacted from the audit log on push.
+
+### Audit log (`.appstore/history/pushes.jsonl`)
+Every mutating call to App Store Connect appends one JSON line to `pushes.jsonl` — tool name, inputs, result or error, and timestamp. Because the file is committed, `git log -p .appstore/history/pushes.jsonl` answers "what did we tell ASC, and when?" Audit writes are best-effort and never mask the underlying API result. (`submissions.jsonl` and `audits.jsonl` are reserved for a later milestone.)
 
 ### Voice Presets
 
@@ -166,6 +195,10 @@ Multi-platform apps are supported — each platform gets its own version-level m
 **"Rate limited"**: The App Store Connect API allows ~300 requests per minute. The plugin handles 429 responses with automatic backoff. Wait a moment and retry.
 
 **Character limit errors**: Run `/app-store-toolkit:validate` to see which fields exceed limits. Use `/app-store-toolkit:aso` to regenerate with proper constraints.
+
+**ASC rejected my privacy submission**: Open `.appstore/privacy.json` and confirm every declared `dataType` lists at least one `purpose`, that you haven't mixed `collectsData=false` with a non-empty `dataTypes`, and that `tracking.enabled=false` keeps `domains` empty. All data type and purpose strings must come from Apple's taxonomy (see `servers/appstore-connect/privacy-taxonomy.json`); the local store rejects unknown values at write time.
+
+**"What did we send to App Store Connect?"**: Inspect `.appstore/history/pushes.jsonl` for the recent entries, or run `git log -p .appstore/history/pushes.jsonl` for a chronological diff of every mutation the plugin made.
 
 ## Roadmap
 

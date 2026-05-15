@@ -1,6 +1,6 @@
 ---
 name: app-store-toolkit:list
-description: List metadata, descriptions, changelogs, IAPs, locales, or iteration history
+description: List metadata, descriptions, changelogs, IAPs, locales, listing/privacy/review config, or push/audit/submission history
 arguments:
   - name: type
     description: "What to list: metadata, description, changelog, iap, locales, history"

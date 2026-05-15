@@ -1,6 +1,6 @@
 ---
 name: app-store-toolkit:push
-description: Push local metadata to App Store Connect
+description: Push local metadata, listing config, App Privacy responses, App Review info, and per-locale URLs to App Store Connect; every mutation is appended to .appstore/history/pushes.jsonl
 arguments:
   - name: locale
     description: "Specific locale to push (pushes all changed locales if omitted)"

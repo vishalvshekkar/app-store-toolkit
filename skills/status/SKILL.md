@@ -1,6 +1,6 @@
 ---
 name: app-store-toolkit:status
-description: Show sync status between local metadata and App Store Connect
+description: Show sync drift between local and App Store Connect across metadata, listing config, App Privacy, App Review info, and per-locale URLs
 arguments:
   - name: locale
     description: "Specific locale to check (checks all if omitted)"

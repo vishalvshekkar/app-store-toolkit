@@ -350,3 +350,85 @@ ar-SA, ca, cs, da, de-DE, el, en-AU, en-CA, en-GB, en-US, es-ES, es-MX, fi, fr-C
 For v1, no multi-app support. All operations are scoped to the single `bundle_id` configured in `config.json`. This is a deliberate safety constraint — account-wide API keys could otherwise accidentally modify the wrong app.
 
 Future multi-app support would require explicit app switching and confirmation flows.
+
+---
+
+## v0.2.0 additions (M1)
+
+M1 expands the toolkit from per-locale metadata only to submission-grade coverage: every field the App Store Connect submission flow requires now has a local representation, a sync path, and an audit trail. Plugin and MCP server both bump to `0.2.0`.
+
+### New local-store files
+
+Three top-level JSON files now sit alongside `config.json` under `.appstore/`:
+
+- **`listing.json`** — primary/secondary categories, age-rating questionnaire answers, default pricing tier with optional per-territory overrides, territory availability list, and the default encryption-compliance answer applied to new builds.
+- **`privacy.json`** — full App Privacy questionnaire payload: `collectsData`, `dataTypes[]` (each with `purposes[]`, `linkedToUser`, `usedForTracking`), `tracking.enabled`, and `tracking.domains[]`.
+- **`review.json`** — App Review information: contact (name/email/phone), demo credentials (username/password/notes), and free-form reviewer notes.
+
+All three are seeded by `/app-store-toolkit:setup` with safe defaults, pulled by `/app-store-toolkit:pull` (with gaps noted below), pushed by `/app-store-toolkit:push`, and diffed by `/app-store-toolkit:status`.
+
+### Audit log
+
+`.appstore/history/` is a new, committed directory. Every mutating MCP tool appends one JSON line to `pushes.jsonl` on completion — success or failure — recording the tool name, the inputs (with secrets redacted), and the API response or error. Two further files are reserved for M3: `submissions.jsonl` (submission state transitions) and `audits.jsonl` (review/rejection events).
+
+Audit writes are best-effort: a failure to write the log line never suppresses the underlying API result or error. Because the directory is committed, `git log -p .appstore/history/pushes.jsonl` is the canonical answer to "what did we tell App Store Connect, and when?"
+
+### Privacy schema invariants
+
+`store_write_privacy` validates the payload before persisting; violations are rejected with a descriptive error:
+
+1. `collectsData === false` ⇒ `dataTypes` must be empty.
+2. `tracking.enabled === false` ⇒ `tracking.domains` must be empty.
+3. Every entry in `dataTypes[]` must declare at least one `purpose`.
+4. Every `dataType` identifier and every `purpose` value must appear in `servers/appstore-connect/privacy-taxonomy.json`, which mirrors Apple's published taxonomy.
+
+The same invariants run again inside `asc_set_privacy_responses` before the API call.
+
+### New MCP tools
+
+All write-side tools below append to `.appstore/history/pushes.jsonl` on completion.
+
+| Tool | Purpose |
+|------|---------|
+| `asc_set_categories` | Set primary and optional secondary App Store category on an `appInfo` |
+| `asc_set_age_rating` | Submit age-rating declaration answers |
+| `asc_set_pricing` | Set default pricing tier with optional per-territory overrides |
+| `asc_set_availability` | Set the territory availability list |
+| `asc_set_privacy_responses` | Replace all existing App Privacy declarations atomically |
+| `asc_set_review_info` | Update review contact, demo credentials, and notes (passwords redacted in audit log) |
+| `asc_set_encryption_compliance` | Record export-compliance answers for a build |
+| `store_read_listing` / `store_write_listing` | Read/write `listing.json` |
+| `store_read_privacy` / `store_write_privacy` | Read/write `privacy.json` with taxonomy + invariant validation |
+| `store_read_review` / `store_write_review` | Read/write `review.json` |
+
+`asc_set_privacy_responses` is a wholesale replace — it deletes all existing privacy declarations for the app and re-creates them from the supplied payload, so partial pushes are not possible.
+
+### Extended MCP tools
+
+- `asc_update_version_localization` now accepts `marketingUrl` and `supportUrl` alongside the existing description/keywords/promo/whatsNew fields.
+- `asc_update_app_info` now accepts `privacyPolicyUrl` as a per-locale field, sidestepping the 409 conflict that the app-level PATCH endpoint returns when an in-flight version exists.
+
+### Skill behaviour changes
+
+- **`/app-store-toolkit:setup`** — seeds `listing.json`, `privacy.json`, and `review.json` with safe defaults during initial configuration, and offers to initialize Git LFS for `.appstore/assets/` so screenshots and previews don't bloat the repo.
+- **`/app-store-toolkit:push`** — pushes listing/privacy/review/URL fields in addition to per-locale metadata. Each underlying MCP call records itself in the audit log.
+- **`/app-store-toolkit:pull`** — fetches the new fields where ASC exposes them. Known gaps: pricing and availability are read-mostly today; rely on local state as the source of truth and push to ASC.
+- **`/app-store-toolkit:status`** — surfaces drift between local and remote for the new files alongside the existing metadata drift.
+- **`/app-store-toolkit:list`** — adds `listing`, `privacy`, `review`, and `history pushes|audits|submissions` subcommands.
+
+### Directory structure (post-M1)
+
+```
+.appstore/
+├── config.json
+├── config.local.json            # gitignored
+├── listing.json                 # categories, age rating, pricing, availability, encryption
+├── privacy.json                 # App Privacy answers (taxonomy-validated)
+├── review.json                  # App Review contact/demo/notes
+├── metadata/                    # (unchanged)
+├── assets/                      # screenshots, previews (Git LFS recommended)
+└── history/
+    ├── pushes.jsonl             # append-only audit of every ASC mutation
+    ├── submissions.jsonl        # reserved (M3)
+    └── audits.jsonl             # reserved (M3)
+```

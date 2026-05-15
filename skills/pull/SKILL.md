@@ -1,6 +1,6 @@
 ---
 name: app-store-toolkit:pull
-description: Fetch metadata from App Store Connect and save to local store
+description: Fetch metadata, listing config, App Privacy, App Review info, and per-locale URLs from App Store Connect into the local store
 arguments:
   - name: locale
     description: "Specific locale to pull (pulls all configured locales if omitted)"
