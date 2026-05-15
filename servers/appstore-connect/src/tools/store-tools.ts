@@ -15,11 +15,20 @@ import {
   StoreWriteReviewSchema,
   StoreReadAssetsLockSchema,
   StoreWriteAssetsLockSchema,
+  StoreReadShipStateSchema,
+  StoreWriteShipStateSchema,
+  StoreClearShipStateSchema,
 } from "./schemas.js";
 import { readListing, writeListing } from "../store/listing.js";
 import { readPrivacy, writePrivacy } from "../store/privacy.js";
 import { readReview, writeReview } from "../store/review.js";
 import { readAssetsLock, writeAssetsLock } from "../store/assets-lock.js";
+import {
+  readShipState,
+  writeShipState,
+  clearShipState,
+} from "../store/ship-state.js";
+import type { ShipState } from "../store/types.js";
 import {
   readMetadataField,
   writeMetadataField,
@@ -663,6 +672,46 @@ export function registerStoreTools(server: McpServer): void {
           isError: true,
         };
       }
+    }
+  );
+
+  // --- store_read_ship_state ---
+  server.tool(
+    "store_read_ship_state",
+    "Read .appstore/ship-state.json (gitignored transient state)",
+    StoreReadShipStateSchema.shape,
+    async () => {
+      const state = await readShipState();
+      if (!state) {
+        return {
+          content: [{ type: "text" as const, text: "No ship-state.json (not currently shipping)" }],
+        };
+      }
+      return {
+        content: [{ type: "text" as const, text: JSON.stringify(state, null, 2) }],
+      };
+    }
+  );
+
+  // --- store_write_ship_state ---
+  server.tool(
+    "store_write_ship_state",
+    "Write .appstore/ship-state.json (gitignored)",
+    StoreWriteShipStateSchema.shape,
+    async ({ state }) => {
+      await writeShipState(state as ShipState);
+      return { content: [{ type: "text" as const, text: "ship-state.json written" }] };
+    }
+  );
+
+  // --- store_clear_ship_state ---
+  server.tool(
+    "store_clear_ship_state",
+    "Delete .appstore/ship-state.json (called on successful /ship completion)",
+    StoreClearShipStateSchema.shape,
+    async () => {
+      await clearShipState();
+      return { content: [{ type: "text" as const, text: "ship-state.json cleared" }] };
     }
   );
 }

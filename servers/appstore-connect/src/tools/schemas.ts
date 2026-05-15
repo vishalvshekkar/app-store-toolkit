@@ -240,3 +240,9 @@ export const AssetsRenderTemplateSchema = z.object({
   platform: z.string().describe("Platform (ios)"),
   device: z.string().describe("Device key (e.g., iphone-6.7)"),
 });
+
+export const StoreReadShipStateSchema = z.object({});
+export const StoreWriteShipStateSchema = z.object({
+  state: z.unknown().describe("Full ShipState object to write"),
+});
+export const StoreClearShipStateSchema = z.object({});
