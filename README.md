@@ -6,6 +6,7 @@ Generate ASO-optimized listings, audit submissions for consistency, render local
 
 ## What you can do
 
+- **Get guided answers and recommendations** (`/app-store-toolkit:help`) — state-aware "what's next" suggestions and docs-grounded answers to any question
 - **Generate ASO-optimized listings** (`/app-store-toolkit:aso`) — name, subtitle, keywords, description, promo text
 - **Localize to 39 locales** (`/app-store-toolkit:localize`) — culturally-aware transcreation, not just translation
 - **Render screenshots from templates** (`/app-store-toolkit:render-screenshots`) — Puppeteer-based asset generation

@@ -8,6 +8,7 @@ This is the complete reference for all 18 user-invocable slash commands in app-s
 
 | Command | Purpose | Added in |
 |---------|---------|----------|
+| [`help`](#app-store-toolkithelp) | Answer questions, state-aware "what's next" recommendations, docs-grounded answers | v0.4.1 |
 | [`setup`](#app-store-toolkitsetup) | Configure bundle ID, credentials, voice/tone, locales, LFS | M1 |
 | [`status`](#app-store-toolkitstatus) | Show sync drift between local and ASC | M1 |
 | [`validate`](#app-store-toolkitvalidate) | Validate metadata against character limits and asset dimensions | M1 |
@@ -26,6 +27,44 @@ This is the complete reference for all 18 user-invocable slash commands in app-s
 | [`submit`](#app-store-toolkitsubmit) | Build-attach-and-submit pipeline (pick TestFlight build, dry-run, submit) | M1 |
 | [`ship`](#app-store-toolkitship) | Full submission orchestrator (audit → push → build → submit with checkpointing) | M1 |
 | [`render-screenshots`](#app-store-toolkitrender-screenshots) | Render screenshots from HTML templates using Puppeteer | M1 |
+
+---
+
+## Help & Discovery
+
+### `/app-store-toolkit:help`
+
+Answer free-form questions about the plugin and get state-aware "what's next" recommendations. Reads `.appstore/` state and relevant doc pages to give personalized guidance.
+
+**Command syntax:**
+```
+/app-store-toolkit:help [question]
+```
+
+**Arguments:**
+
+| Name | Required | Description |
+|------|----------|-------------|
+| `question` | No | Free-form question. If omitted, the skill gives a state-aware "what's next" recommendation. |
+
+**What it does:**
+
+When called with no arguments, analyzes your local `.appstore/` state and recommends the concrete next command (e.g., "run `/app-store-toolkit:aso`" if you haven't generated metadata yet). When called with a question, reads the relevant doc page and gives a 3-6 sentence answer grounded in the documentation. Routes your question to the appropriate doc page based on topic keywords (setup, architecture, commands, workflows, etc.).
+
+**Typical workflow:**
+
+- Right after install — `/app-store-toolkit:help` confirms the first step
+- Mid-flow — `/app-store-toolkit:help what's next` for the concrete next command
+- Anytime — `/app-store-toolkit:help how do screenshots work` for a docs-grounded answer
+
+**Side effects:**
+
+Read-only. Reads `.appstore/` state and `docs/` files, then responds. Does not modify any files or make API calls.
+
+**Related:**
+
+- The [SessionStart hook](../concepts/architecture.md) also prints a one-line `→ Next: ...` recommendation at the start of every session (zero-effort discovery)
+- [Documentation index](../README.md)
 
 ---
 

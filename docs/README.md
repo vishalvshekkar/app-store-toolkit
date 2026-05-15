@@ -4,6 +4,8 @@ Welcome to the documentation for app-store-toolkit, a Claude Code plugin that ma
 
 ## Quick start
 
+**Have a question?** Run `/app-store-toolkit:help` in any Claude Code session — get state-aware "what's next" recommendations and docs-grounded answers.
+
 **New to the plugin?** Start with [Getting started](getting-started.md) — a 10-minute walk through setup and your first metadata generation.
 
 **Shipping a release?** Jump straight to [Shipping a release](workflows/shipping-a-release.md) — the end-to-end workflow for version bumps, changelogs, and submissions.
