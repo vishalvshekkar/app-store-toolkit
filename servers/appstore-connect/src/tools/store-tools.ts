@@ -13,10 +13,13 @@ import {
   StoreWritePrivacySchema,
   StoreReadReviewSchema,
   StoreWriteReviewSchema,
+  StoreReadAssetsLockSchema,
+  StoreWriteAssetsLockSchema,
 } from "./schemas.js";
 import { readListing, writeListing } from "../store/listing.js";
 import { readPrivacy, writePrivacy } from "../store/privacy.js";
 import { readReview, writeReview } from "../store/review.js";
+import { readAssetsLock, writeAssetsLock } from "../store/assets-lock.js";
 import {
   readMetadataField,
   writeMetadataField,
@@ -37,7 +40,7 @@ import {
   ensureAppstoreDir,
 } from "../store/config.js";
 import { validateField, CHAR_LIMITS, formatValidationResults } from "../validation/limits.js";
-import type { MetadataField, ValidationResult, AppConfig } from "../store/types.js";
+import type { MetadataField, ValidationResult, AppConfig, AssetsLock } from "../store/types.js";
 
 /** Register all local store tools on the MCP server */
 export function registerStoreTools(server: McpServer): void {
@@ -598,6 +601,61 @@ export function registerStoreTools(server: McpServer): void {
         await writeReview(review as any);
         return {
           content: [{ type: "text" as const, text: JSON.stringify({ success: true }, null, 2) }],
+        };
+      } catch (e: any) {
+        return {
+          content: [{ type: "text" as const, text: `Error: ${e.message}` }],
+          isError: true,
+        };
+      }
+    }
+  );
+
+  // --- store_read_assets_lock ---
+  server.tool(
+    "store_read_assets_lock",
+    "Read .appstore/metadata/{locale}/{platform}/assets.lock.json",
+    StoreReadAssetsLockSchema.shape,
+    async ({ locale, platform }) => {
+      try {
+        const lock = await readAssetsLock(locale, platform);
+        if (!lock) {
+          return {
+            content: [
+              {
+                type: "text" as const,
+                text: `No assets.lock.json for ${locale}/${platform}`,
+              },
+            ],
+          };
+        }
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify(lock, null, 2) }],
+        };
+      } catch (e: any) {
+        return {
+          content: [{ type: "text" as const, text: `Error: ${e.message}` }],
+          isError: true,
+        };
+      }
+    }
+  );
+
+  // --- store_write_assets_lock ---
+  server.tool(
+    "store_write_assets_lock",
+    "Write .appstore/metadata/{locale}/{platform}/assets.lock.json",
+    StoreWriteAssetsLockSchema.shape,
+    async ({ locale, platform, lock }) => {
+      try {
+        await writeAssetsLock(locale, platform, lock as AssetsLock);
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: `Wrote assets.lock.json for ${locale}/${platform}`,
+            },
+          ],
         };
       } catch (e: any) {
         return {

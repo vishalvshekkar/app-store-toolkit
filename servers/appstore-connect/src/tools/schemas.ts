@@ -184,3 +184,14 @@ export const StoreReadReviewSchema = z.object({});
 export const StoreWriteReviewSchema = z.object({
   review: z.unknown().describe("Full ReviewInfo object"),
 });
+
+export const StoreReadAssetsLockSchema = z.object({
+  locale: z.string().describe("Locale code (e.g., en-US)"),
+  platform: z.string().describe("Platform (ios)"),
+});
+
+export const StoreWriteAssetsLockSchema = z.object({
+  locale: z.string().describe("Locale code"),
+  platform: z.string().describe("Platform"),
+  lock: z.unknown().describe("Full AssetsLock object to write"),
+});
