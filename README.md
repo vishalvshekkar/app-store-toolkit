@@ -74,6 +74,14 @@ claude plugin install https://github.com/vishalvshekkar/app-store-toolkit
 | `/app-store-toolkit:pull` | Pull metadata from App Store Connect |
 | `/app-store-toolkit:status` | Show sync status between local and remote |
 
+### Submission & Audit
+
+| Command | Description |
+|---------|-------------|
+| `/app-store-toolkit:audit` | Single-pass submission readiness check (7 phases, vision cross-surface) |
+| `/app-store-toolkit:submit` | Build attach + dry-run + submit pipeline |
+| `/app-store-toolkit:ship` | Full orchestrator with phase-level resume and --waive blocker overrides |
+
 ### Analysis & Review
 
 | Command | Description |

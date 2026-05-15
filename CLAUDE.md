@@ -41,8 +41,8 @@ App-level decisions and per-locale content live in `.appstore/`. Every committed
   templates/               ✅ NEW — optional Puppeteer-based screenshot renderer (opt-in install)
   history/                 ✅ committed — append-only audit log
     pushes.jsonl           # one line per ASC mutation: timestamp, tool, payload, result
-    submissions.jsonl      # M3
-    audits.jsonl           # M3
+    submissions.jsonl      # M3 — one line per submission attempt: timestamp, build, dry-run result, status
+    audits.jsonl           # M3 — one line per audit run: timestamp, 7-phase results, cross-surface violations
   ship-state.json          🚫 gitignored transient — /ship checkpoint (M3)
 ```
 
@@ -99,6 +99,9 @@ When generating content, gather context from (priority order):
 | `/app-store-toolkit:localize`   | Translate metadata to configured locales     |
 | `/app-store-toolkit:push`       | Sync local metadata to App Store Connect     |
 | `/app-store-toolkit:pull`       | Fetch metadata from App Store Connect        |
+| `/app-store-toolkit:audit`      | Single-pass submission readiness check (7 phases, vision cross-surface) |
+| `/app-store-toolkit:submit`     | Build attach + dry-run + submit pipeline |
+| `/app-store-toolkit:ship`       | Full orchestrator with phase-level resume and --waive blocker overrides |
 | `/app-store-toolkit:validate`   | Validate all metadata against char limits    |
 | `/app-store-toolkit:score`      | ASO quality score (0-100)                    |
 | `/app-store-toolkit:list`       | List metadata, descriptions, changelogs, etc |
