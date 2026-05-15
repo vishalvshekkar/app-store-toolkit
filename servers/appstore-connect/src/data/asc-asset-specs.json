@@ -1,0 +1,44 @@
+{
+  "ios": {
+    "iphone-6.7": {
+      "ascDisplayTarget": "APP_IPHONE_67",
+      "screenshotDimensions": [
+        { "width": 1290, "height": 2796 },
+        { "width": 2796, "height": 1290 }
+      ],
+      "previewDimensions": [{ "width": 886, "height": 1920 }]
+    },
+    "iphone-6.5": {
+      "ascDisplayTarget": "APP_IPHONE_65",
+      "screenshotDimensions": [
+        { "width": 1284, "height": 2778 },
+        { "width": 2778, "height": 1284 }
+      ],
+      "previewDimensions": [{ "width": 886, "height": 1920 }]
+    },
+    "iphone-5.5": {
+      "ascDisplayTarget": "APP_IPHONE_55",
+      "screenshotDimensions": [
+        { "width": 1242, "height": 2208 },
+        { "width": 2208, "height": 1242 }
+      ],
+      "previewDimensions": [{ "width": 1080, "height": 1920 }]
+    },
+    "ipad-pro-12.9": {
+      "ascDisplayTarget": "APP_IPAD_PRO_129",
+      "screenshotDimensions": [
+        { "width": 2048, "height": 2732 },
+        { "width": 2732, "height": 2048 }
+      ],
+      "previewDimensions": [{ "width": 2732, "height": 2048 }]
+    },
+    "ipad-pro-11": {
+      "ascDisplayTarget": "APP_IPAD_PRO_11",
+      "screenshotDimensions": [
+        { "width": 1668, "height": 2388 },
+        { "width": 2388, "height": 1668 }
+      ],
+      "previewDimensions": [{ "width": 2388, "height": 1668 }]
+    }
+  }
+}
