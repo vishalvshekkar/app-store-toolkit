@@ -169,12 +169,12 @@ export function registerAscTools(server: McpServer): void {
         if (privacyPolicyUrl !== undefined) updates.privacyPolicyUrl = privacyPolicyUrl;
 
         const updated = await updateAppInfoLocalization(localization_id, updates);
-        await appendHistoryEntry("pushes", {
+        try { await appendHistoryEntry("pushes", {
           tool: "asc_update_app_info",
           target: { localization_id },
           payload: updates,
           result: "success",
-        });
+        }); } catch { /* history is best-effort */ }
         return {
           content: [
             {
@@ -194,13 +194,13 @@ export function registerAscTools(server: McpServer): void {
           ],
         };
       } catch (e: any) {
-        await appendHistoryEntry("pushes", {
+        try { await appendHistoryEntry("pushes", {
           tool: "asc_update_app_info",
           target: { localization_id },
           payload: { name, subtitle, privacyPolicyUrl },
           result: "error",
           error: e.message,
-        });
+        }); } catch { /* history is best-effort */ }
         return {
           content: [{ type: "text" as const, text: `Error: ${e.message}` }],
           isError: true,
@@ -329,12 +329,12 @@ export function registerAscTools(server: McpServer): void {
         if (supportUrl !== undefined) updates.supportUrl = supportUrl;
 
         const updated = await updateVersionLocalization(localization_id, updates);
-        await appendHistoryEntry("pushes", {
+        try { await appendHistoryEntry("pushes", {
           tool: "asc_update_version_localization",
           target: { localization_id },
           payload: updates,
           result: "success",
-        });
+        }); } catch { /* history is best-effort */ }
         return {
           content: [
             {
@@ -352,13 +352,13 @@ export function registerAscTools(server: McpServer): void {
           ],
         };
       } catch (e: any) {
-        await appendHistoryEntry("pushes", {
+        try { await appendHistoryEntry("pushes", {
           tool: "asc_update_version_localization",
           target: { localization_id },
           payload: { description, keywords, promotionalText, whatsNew, marketingUrl, supportUrl },
           result: "error",
           error: e.message,
-        });
+        }); } catch { /* history is best-effort */ }
         return {
           content: [{ type: "text" as const, text: `Error: ${e.message}` }],
           isError: true,
@@ -560,12 +560,12 @@ export function registerAscTools(server: McpServer): void {
       try {
         if (!(await hasCredentials())) return noCredentialsError();
         const updated = await setCategories(app_info_id, { primary, secondary });
-        await appendHistoryEntry("pushes", {
+        try { await appendHistoryEntry("pushes", {
           tool: "asc_set_categories",
           target: { app_info_id },
           payload: { primary, secondary },
           result: "success",
-        });
+        }); } catch { /* history is best-effort */ }
         return {
           content: [
             {
@@ -584,13 +584,13 @@ export function registerAscTools(server: McpServer): void {
           ],
         };
       } catch (e: any) {
-        await appendHistoryEntry("pushes", {
+        try { await appendHistoryEntry("pushes", {
           tool: "asc_set_categories",
           target: { app_info_id },
           payload: { primary, secondary },
           result: "error",
           error: e.message,
-        });
+        }); } catch { /* history is best-effort */ }
         return {
           content: [{ type: "text" as const, text: `Error: ${e.message}` }],
           isError: true,
@@ -608,12 +608,12 @@ export function registerAscTools(server: McpServer): void {
       try {
         if (!(await hasCredentials())) return noCredentialsError();
         const updated = await setAgeRatingDeclaration(declaration_id, answers);
-        await appendHistoryEntry("pushes", {
+        try { await appendHistoryEntry("pushes", {
           tool: "asc_set_age_rating",
           target: { declaration_id },
           payload: { answers },
           result: "success",
-        });
+        }); } catch { /* history is best-effort */ }
         return {
           content: [
             {
@@ -623,13 +623,13 @@ export function registerAscTools(server: McpServer): void {
           ],
         };
       } catch (e: any) {
-        await appendHistoryEntry("pushes", {
+        try { await appendHistoryEntry("pushes", {
           tool: "asc_set_age_rating",
           target: { declaration_id },
           payload: { answers },
           result: "error",
           error: e.message,
-        });
+        }); } catch { /* history is best-effort */ }
         return {
           content: [{ type: "text" as const, text: `Error: ${e.message}` }],
           isError: true,
@@ -653,25 +653,25 @@ export function registerAscTools(server: McpServer): void {
             priceTier: p.price_tier,
           })),
         });
-        await appendHistoryEntry("pushes", {
+        try { await appendHistoryEntry("pushes", {
           tool: "asc_set_pricing",
           target: { app_id },
           payload: { default_tier, per_territory },
           result: "success",
-        });
+        }); } catch { /* history is best-effort */ }
         return {
           content: [
             { type: "text" as const, text: JSON.stringify({ success: true, id: updated.id }, null, 2) },
           ],
         };
       } catch (e: any) {
-        await appendHistoryEntry("pushes", {
+        try { await appendHistoryEntry("pushes", {
           tool: "asc_set_pricing",
           target: { app_id },
           payload: { default_tier, per_territory },
           result: "error",
           error: e.message,
-        });
+        }); } catch { /* history is best-effort */ }
         return {
           content: [{ type: "text" as const, text: `Error: ${e.message}` }],
           isError: true,
@@ -689,12 +689,12 @@ export function registerAscTools(server: McpServer): void {
       try {
         if (!(await hasCredentials())) return noCredentialsError();
         await replaceAppDataUsages(app_id, responses as any);
-        await appendHistoryEntry("pushes", {
+        try { await appendHistoryEntry("pushes", {
           tool: "asc_set_privacy_responses",
           target: { app_id },
           payload: { responses },
           result: "success",
-        });
+        }); } catch { /* history is best-effort */ }
         return {
           content: [
             {
@@ -704,13 +704,13 @@ export function registerAscTools(server: McpServer): void {
           ],
         };
       } catch (e: any) {
-        await appendHistoryEntry("pushes", {
+        try { await appendHistoryEntry("pushes", {
           tool: "asc_set_privacy_responses",
           target: { app_id },
           payload: { responses },
           result: "error",
           error: e.message,
-        });
+        }); } catch { /* history is best-effort */ }
         return {
           content: [{ type: "text" as const, text: `Error: ${e.message}` }],
           isError: true,
@@ -732,7 +732,7 @@ export function registerAscTools(server: McpServer): void {
           demo,
           notes,
         });
-        await appendHistoryEntry("pushes", {
+        try { await appendHistoryEntry("pushes", {
           tool: "asc_set_review_info",
           target: { review_detail_id },
           // Don't log the password
@@ -742,20 +742,20 @@ export function registerAscTools(server: McpServer): void {
             notes,
           },
           result: "success",
-        });
+        }); } catch { /* history is best-effort */ }
         return {
           content: [
             { type: "text" as const, text: JSON.stringify({ success: true, id: updated.id }, null, 2) },
           ],
         };
       } catch (e: any) {
-        await appendHistoryEntry("pushes", {
+        try { await appendHistoryEntry("pushes", {
           tool: "asc_set_review_info",
           target: { review_detail_id },
           payload: { contact, demo: { required: demo.required }, notes },
           result: "error",
           error: e.message,
-        });
+        }); } catch { /* history is best-effort */ }
         return {
           content: [{ type: "text" as const, text: `Error: ${e.message}` }],
           isError: true,
@@ -776,25 +776,25 @@ export function registerAscTools(server: McpServer): void {
           usesEncryption: uses_encryption,
           exemptions,
         });
-        await appendHistoryEntry("pushes", {
+        try { await appendHistoryEntry("pushes", {
           tool: "asc_set_encryption_compliance",
           target: { build_id },
           payload: { uses_encryption, exemptions },
           result: "success",
-        });
+        }); } catch { /* history is best-effort */ }
         return {
           content: [
             { type: "text" as const, text: JSON.stringify({ success: true, id: updated.id }, null, 2) },
           ],
         };
       } catch (e: any) {
-        await appendHistoryEntry("pushes", {
+        try { await appendHistoryEntry("pushes", {
           tool: "asc_set_encryption_compliance",
           target: { build_id },
           payload: { uses_encryption, exemptions },
           result: "error",
           error: e.message,
-        });
+        }); } catch { /* history is best-effort */ }
         return {
           content: [{ type: "text" as const, text: `Error: ${e.message}` }],
           isError: true,
@@ -812,25 +812,25 @@ export function registerAscTools(server: McpServer): void {
       try {
         if (!(await hasCredentials())) return noCredentialsError();
         const updated = await setAppAvailability(app_id, territories);
-        await appendHistoryEntry("pushes", {
+        try { await appendHistoryEntry("pushes", {
           tool: "asc_set_availability",
           target: { app_id },
           payload: { territories },
           result: "success",
-        });
+        }); } catch { /* history is best-effort */ }
         return {
           content: [
             { type: "text" as const, text: JSON.stringify({ success: true, id: updated.id }, null, 2) },
           ],
         };
       } catch (e: any) {
-        await appendHistoryEntry("pushes", {
+        try { await appendHistoryEntry("pushes", {
           tool: "asc_set_availability",
           target: { app_id },
           payload: { territories },
           result: "error",
           error: e.message,
-        });
+        }); } catch { /* history is best-effort */ }
         return {
           content: [{ type: "text" as const, text: `Error: ${e.message}` }],
           isError: true,
