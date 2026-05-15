@@ -83,6 +83,11 @@ IAPs pulled: 2 (premium_monthly, premium_yearly)
 - "Run `/app-store-toolkit:aso` to generate improved metadata"
 - "Run `/app-store-toolkit:validate` to check character limits"
 
+## Suggested next
+
+- `/app-store-toolkit:status` — see what has drifted between local and App Store Connect since the pull
+- See also: docs/reference/commands.md
+
 ## Pulling listing config
 
 For each section, read from ASC and merge into a `ListingConfig` object, then write via `store_write_listing`.

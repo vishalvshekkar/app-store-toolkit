@@ -69,3 +69,8 @@ If `$ARGUMENTS` includes `--wait`:
 - Every 30 seconds, call `asc_get_submission_state { version_id }`.
 - Stop when state is terminal (`READY_FOR_SALE`, `REJECTED`, `PENDING_DEVELOPER_RELEASE`, `IN_REVIEW`).
 - Report progress between polls.
+
+## Related
+
+- `/app-store-toolkit:reviews` — once the app goes live, monitor and respond to customer reviews
+- See also: docs/workflows/shipping-a-release.md

@@ -105,3 +105,9 @@ On approval, call `store_write_metadata` with:
 
 - "Run `/app-store-toolkit:localize` to translate release notes to other locales"
 - "Run `/app-store-toolkit:push` to sync to App Store Connect"
+
+## Suggested next
+
+- `/app-store-toolkit:validate` — confirm the release notes are within the 4000-character limit before pushing
+- `/app-store-toolkit:push` — sync the approved release notes to App Store Connect
+- See also: docs/reference/commands.md

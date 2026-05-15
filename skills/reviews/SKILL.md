@@ -115,3 +115,8 @@ then consider adding widgets for next release.
 - After list: "Say 'respond to [review]' to draft a response"
 - After respond: "Response posted to App Store Connect"
 - After analyze: "Use these insights when running `/app-store-toolkit:aso` or `/app-store-toolkit:changelog`"
+
+## Related
+
+- `/app-store-toolkit:list` — view push and audit history, or browse listing and privacy data
+- See also: docs/reference/commands.md

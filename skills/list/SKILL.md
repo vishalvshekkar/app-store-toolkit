@@ -111,3 +111,9 @@ If no metadata exists yet, suggest:
 - "Run `/app-store-toolkit:setup` to configure your app" (if no config)
 - "Run `/app-store-toolkit:pull` to fetch existing metadata from App Store Connect"
 - "Run `/app-store-toolkit:aso` to generate new metadata"
+
+## Related
+
+- `/app-store-toolkit:status` — see live sync drift between local and App Store Connect
+- `/app-store-toolkit:history` — view push and audit history for any field
+- See also: docs/reference/commands.md

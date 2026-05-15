@@ -91,3 +91,9 @@ assets validation:
 ```
 
 If any failures, exit before users push.
+
+## Suggested next
+
+- `/app-store-toolkit:push` — if all fields pass, push the validated metadata to App Store Connect
+- `/app-store-toolkit:aso` — if character limits are exceeded, regenerate the offending fields with proper constraints
+- See also: docs/reference/character-limits.md

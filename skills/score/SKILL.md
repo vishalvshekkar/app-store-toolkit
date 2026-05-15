@@ -85,3 +85,8 @@ For each improvement, give concrete actionable advice:
 
 - "Run `/app-store-toolkit:aso` to regenerate improved metadata"
 - "Run `/app-store-toolkit:localize` to add missing locale support"
+
+## Suggested next
+
+- `/app-store-toolkit:aso` — iterate on the metadata to address the top improvement suggestions
+- See also: docs/concepts/voice-and-tone.md

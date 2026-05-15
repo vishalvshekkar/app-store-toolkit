@@ -91,3 +91,9 @@ On approval, call `store_write_metadata` for each field:
 - "Run `/app-store-toolkit:localize` to translate IAP copy to other locales"
 - "Run `/app-store-toolkit:list iap` to see all IAP products"
 - "Run `/app-store-toolkit:push` to sync to App Store Connect"
+
+## Suggested next
+
+- `/app-store-toolkit:validate` — confirm IAP display names and descriptions are within limits
+- `/app-store-toolkit:push` — sync approved IAP copy to App Store Connect
+- See also: docs/reference/file-schemas.md

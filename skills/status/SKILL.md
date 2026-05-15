@@ -70,6 +70,13 @@ Based on the status:
 - If conflicts exist: "Review conflicts and decide which version to keep"
 - If all in sync: "Everything is in sync with App Store Connect"
 
+## Suggested next
+
+- `/app-store-toolkit:push` — if local-changed fields exist, push them to App Store Connect
+- `/app-store-toolkit:pull` — if remote-newer fields exist, pull the upstream changes
+- `/app-store-toolkit:audit` — if everything is in sync, run a full submission readiness check
+- See also: docs/reference/commands.md
+
 ## Listing config drift
 
 Call `store_read_listing` to get the local `ListingConfig`. Compare against ASC by fetching:

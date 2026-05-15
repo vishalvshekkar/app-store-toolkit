@@ -95,3 +95,9 @@ Append this as one line to `.appstore/history/audits.jsonl` using a Bash command
 
 - If blockers > 0: "Resolve the blockers above, or run `/ship --waive <check>:<target> --reason '...'` to override."
 - Else: "Audit clean. Run `/app-store-toolkit:ship` to push and submit."
+
+## Suggested next
+
+- `/app-store-toolkit:ship` — if audit is clean, run the full push-and-submit pipeline
+- `/app-store-toolkit:localize` — resolve locale-parity blockers by generating missing translations
+- See also: docs/workflows/audit-deep-dive.md

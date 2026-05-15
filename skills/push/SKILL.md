@@ -97,6 +97,12 @@ Push complete:
 - "Run `/app-store-toolkit:status` to verify sync state"
 - "Run `/app-store-toolkit:pull` to confirm remote matches local"
 
+## Suggested next
+
+- `/app-store-toolkit:status` — confirm all fields are in sync with App Store Connect
+- `/app-store-toolkit:audit` — run a full submission readiness check once everything is pushed
+- See also: docs/workflows/shipping-a-release.md
+
 ## Pushing listing config (categories, age rating, pricing, availability, encryption)
 
 Read `.appstore/listing.json` via `store_read_listing`. If the file doesn't exist, skip this stage with a note: "No listing.json found — run /app-store-toolkit:setup or create it manually."

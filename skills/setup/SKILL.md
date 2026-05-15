@@ -200,3 +200,9 @@ Ask the user three questions:
    ```
 
 Also ensure `.appstore/ship-state.json` and `.appstore/config.local.json` remain in `.gitignore` (the M1 logic already covers these).
+
+## Suggested next
+
+- `/app-store-toolkit:pull` — if your app is already on the App Store, fetch the current metadata from App Store Connect
+- `/app-store-toolkit:aso` — generate ASO-optimized listing copy from scratch
+- See also: docs/getting-started.md

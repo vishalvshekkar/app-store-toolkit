@@ -39,3 +39,9 @@ For each locale × device with entries and a template:
 Rendered 36 screenshots across 9 locales × 4 devices.
 Run /app-store-toolkit:validate to confirm dimensions, then /app-store-toolkit:push --assets.
 ```
+
+## Suggested next
+
+- `/app-store-toolkit:validate` — confirm rendered screenshots meet Apple's required dimensions
+- `/app-store-toolkit:push` — upload the validated screenshots to App Store Connect
+- See also: docs/workflows/assets-pipeline.md

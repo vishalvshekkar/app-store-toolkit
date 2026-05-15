@@ -149,3 +149,8 @@ For each detected data type:
 - Flag any third-party SDKs that require additional declarations
 
 Always include the disclaimer that this is an automated analysis and must be manually verified.
+
+## Suggested next
+
+- `/app-store-toolkit:push` — sync the verified privacy responses to App Store Connect
+- See also: docs/reference/file-schemas.md

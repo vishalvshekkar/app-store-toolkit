@@ -113,3 +113,9 @@ After saving:
 - "Run `/app-store-toolkit:localize` to translate to your other configured locales"
 - "Run `/app-store-toolkit:push` to sync to App Store Connect"
 - "Run `/app-store-toolkit:list metadata` to see the full metadata summary"
+
+## Suggested next
+
+- `/app-store-toolkit:score` — evaluate the generated metadata for ASO quality and get improvement suggestions
+- `/app-store-toolkit:localize` — translate the primary-locale copy to all other configured locales
+- See also: docs/concepts/voice-and-tone.md

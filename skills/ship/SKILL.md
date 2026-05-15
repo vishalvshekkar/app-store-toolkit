@@ -81,3 +81,9 @@ Parse `$ARGUMENTS` for `--waive check:target` (may appear multiple times) and `-
   ```
 - Call `store_clear_ship_state` to delete `ship-state.json`.
 - Print final summary: "Submitted version X.Y.Z. Submission id: <id>. Waiting for review."
+
+## Related
+
+- `/app-store-toolkit:reviews` — once the app goes live, monitor and respond to customer reviews
+- `/app-store-toolkit:changelog` — start drafting release notes for the next version
+- See also: docs/workflows/shipping-a-release.md

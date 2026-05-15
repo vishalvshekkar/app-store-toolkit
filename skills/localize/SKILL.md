@@ -109,3 +109,8 @@ For each approved field, call `store_write_metadata` with:
 - "Run `/app-store-toolkit:validate` to verify all locales pass limits"
 - "Run `/app-store-toolkit:list locales` to see completion status across locales"
 - "Run `/app-store-toolkit:push` to sync localized metadata to App Store Connect"
+
+## Suggested next
+
+- `/app-store-toolkit:audit` — verify locale parity and catch any per-locale quality issues
+- See also: docs/concepts/locales.md

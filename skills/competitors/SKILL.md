@@ -88,3 +88,8 @@ Recommendations:
 
 - "Run `/app-store-toolkit:aso` to regenerate metadata with competitive insights"
 - "Run `/app-store-toolkit:score` to see your updated ASO score"
+
+## Suggested next
+
+- `/app-store-toolkit:aso` — incorporate the keyword gaps and positioning insights into new metadata
+- See also: docs/reference/commands.md
