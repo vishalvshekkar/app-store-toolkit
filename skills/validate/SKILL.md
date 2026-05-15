@@ -75,3 +75,19 @@ en-US   |   5    |  4   |  1
 ja      |   5    |  5   |  0
 de-DE   |   5    |  3   |  2
 ```
+
+## Asset dimension validation
+
+If `.appstore/assets/{platform}/` exists, run:
+
+1. Call `assets_validate_dimensions` (optionally filtered by `--locale` from `$ARGUMENTS`).
+2. Surface each failing file with its expected and actual dimensions and the remediation:
+
+```
+assets validation:
+  ✓ 143 of 144 files match expected dimensions
+  ✗ en-US/ios/iphone-6.7/02-stats.png — expected 1290×2796 or 2796×1290, got 1242×2688
+    → resize, or move to .appstore/assets/ios/en-US/iphone-5.5/screenshots/
+```
+
+If any failures, exit before users push.
