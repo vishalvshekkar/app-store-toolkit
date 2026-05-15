@@ -1,6 +1,6 @@
 {
   "name": "app-store-toolkit",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "AI-powered App Store Connect metadata management — ASO copywriting, changelogs, localization, and two-way sync.",
   "skills": "./skills/",
   "agents": [
