@@ -106,3 +106,31 @@ Read `appStoreReviewDetails` for the editable version. Map the attributes back i
 ## Pulling URL fields
 
 For each locale, read `marketingUrl` and `supportUrl` from `appStoreVersionLocalizations` and `privacyPolicyUrl` from `appInfoLocalizations`. Write them into the per-locale metadata file alongside the existing fields.
+
+## Pulling assets (manifest by default)
+
+For each `locale` × `platform` × `device`:
+
+1. Determine the `appScreenshotSet` and `appPreviewSet` IDs for this device on this version-localization (same lookup as `/push`'s asset phase).
+2. Call `asc_list_screenshots({ set_id })` and `asc_list_app_previews({ set_id })`.
+3. Merge results into `assets.lock.json` for `{locale, platform}` via `store_read_assets_lock` then `store_write_assets_lock`:
+   - For each remote screenshot, find or create an entry by `fileName`.
+     - Set `asc_id` to the remote id.
+     - Set `asc_checksum_md5` to the remote `sourceFileChecksum`.
+     - If the local file does not exist, set `sha256 = null`.
+     - If the local file exists, hash it and set `sha256`.
+     - Set `width`, `height` from the remote response.
+   - For each lock entry whose `asc_id` is not present remotely, set its `asc_id = null` (it has been deleted upstream).
+4. Write `assets.lock.json` via `store_write_assets_lock`.
+
+If `$ARGUMENTS` includes `--with-bytes`:
+- For each remote asset, fetch its image/video bytes via the asset's `imageAsset.templateUrl` / `videoUrl` (resolved at the resolution closest to the spec's target), and write to `.appstore/assets/{platform}/{locale}/{device}/{screenshots|previews}/{fileName}`.
+- After writing, compute `sha256` from the local file and update the lock entry.
+
+### Summary output
+
+```
+assets pulled:
+  9 locales × 4 devices = 144 manifest entries
+  Run /app-store-toolkit:pull --with-bytes to download ~87 MB of screenshot bytes.
+```
