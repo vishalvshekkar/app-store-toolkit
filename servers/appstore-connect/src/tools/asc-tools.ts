@@ -31,7 +31,7 @@ import { setAppStoreReviewDetail } from "../api/review-info.js";
 import { setBuildEncryption } from "../api/encryption.js";
 import { listBuilds, attachBuildToVersion } from "../api/builds.js";
 import { setReleaseStrategy, createVersion } from "../api/release.js";
-import { submitForReview } from "../api/submission.js";
+import { submitForReview, getSubmissionState } from "../api/submission.js";
 import { ascRequest } from "../api/client.js";
 import {
   listScreenshots,
@@ -67,6 +67,7 @@ import {
   AscSetReleaseStrategySchema,
   AscCreateVersionSchema,
   AscSubmitForReviewSchema,
+  AscGetSubmissionStateSchema,
   AscUploadScreenshotSchema,
   AscUploadAppPreviewSchema,
   AscListScreenshotsSchema,
@@ -1549,6 +1550,24 @@ export function registerAscTools(server: McpServer): void {
           content: [
             { type: "text" as const, text: JSON.stringify({ submitted: true, ...result }, null, 2) },
           ],
+        };
+      } catch (e: any) {
+        return { content: [{ type: "text" as const, text: `Error: ${e.message}` }], isError: true };
+      }
+    }
+  );
+
+  // --- asc_get_submission_state ---
+  server.tool(
+    "asc_get_submission_state",
+    "Read the current appStoreState of a version (one-shot, no polling)",
+    AscGetSubmissionStateSchema.shape,
+    async ({ version_id }) => {
+      try {
+        if (!(await hasCredentials())) return noCredentialsError();
+        const state = await getSubmissionState(version_id);
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ version_id, state }, null, 2) }],
         };
       } catch (e: any) {
         return { content: [{ type: "text" as const, text: `Error: ${e.message}` }], isError: true };

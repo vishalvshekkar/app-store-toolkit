@@ -277,3 +277,7 @@ export const AscSubmitForReviewSchema = z.object({
   version_id: z.string(),
   dry_run: z.boolean().default(false).describe("If true, run readiness checks and return without submitting"),
 });
+
+export const AscGetSubmissionStateSchema = z.object({
+  version_id: z.string(),
+});
