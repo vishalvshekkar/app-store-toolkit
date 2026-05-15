@@ -49,6 +49,7 @@ import { readAssetsLock, writeAssetsLock, emptyAssetsLock } from "../store/asset
 import { readPngDimensions } from "../util/dimensions.js";
 import { getSpec, listDevices, type DeviceKey, type Platform } from "../data/asc-asset-specs.js";
 import { getAppstoreDir } from "../store/config.js";
+import { renderScreenshots } from "./renderer.js";
 import {
   AscSetCategoriesSchema,
   AscSetAgeRatingSchema,
@@ -64,6 +65,7 @@ import {
   AscDeleteScreenshotSchema,
   AscDeleteAppPreviewSchema,
   AssetsValidateDimensionsSchema,
+  AssetsRenderTemplateSchema,
 } from "./schemas.js";
 import { hasCredentials } from "../auth/jwt.js";
 
@@ -1207,6 +1209,62 @@ export function registerAscTools(server: McpServer): void {
         return { content: [{ type: "text" as const, text: `Deleted app preview ${asset_id}` }] };
       } catch (e: any) {
         return { content: [{ type: "text" as const, text: `Error: ${e.message}` }], isError: true };
+      }
+    }
+  );
+
+  // --- assets_render_template ---
+  server.tool(
+    "assets_render_template",
+    "Render screenshots from .appstore/templates/ HTML using Puppeteer (installs on first call)",
+    AssetsRenderTemplateSchema.shape,
+    async ({ locale, platform, device }) => {
+      try {
+        const assetsJsonPath = join(getAppstoreDir(), "metadata", locale, platform, "assets.json");
+        if (!existsSync(assetsJsonPath)) {
+          return {
+            content: [{ type: "text" as const, text: `assets.json not found at ${assetsJsonPath}` }],
+            isError: true,
+          };
+        }
+        const assets = JSON.parse(await readFile(assetsJsonPath, "utf-8"));
+        const entries = assets.screenshots?.[device] ?? [];
+        if (entries.length === 0) {
+          return {
+            content: [{ type: "text" as const, text: `No screenshot entries for ${device} in assets.json` }],
+            isError: true,
+          };
+        }
+        const templatePath = join(getAppstoreDir(), "templates", `screenshot-${device}.html`);
+        if (!existsSync(templatePath)) {
+          return {
+            content: [{ type: "text" as const, text: `Template not found: ${templatePath}` }],
+            isError: true,
+          };
+        }
+        const spec = getSpec(platform as Platform, device as DeviceKey);
+        const portrait = spec.screenshotDimensions[0];
+        const outputDir = join(getAppstoreDir(), "assets", platform, locale, device, "screenshots");
+        const rendered = await renderScreenshots({
+          locale,
+          platform,
+          device,
+          width: portrait.width,
+          height: portrait.height,
+          templatePath,
+          outputDir,
+          entries,
+        });
+        return {
+          content: [
+            { type: "text" as const, text: JSON.stringify({ rendered }, null, 2) },
+          ],
+        };
+      } catch (e: any) {
+        return {
+          content: [{ type: "text" as const, text: `Renderer error: ${e.message}` }],
+          isError: true,
+        };
       }
     }
   );

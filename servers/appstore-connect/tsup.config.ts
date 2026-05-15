@@ -10,4 +10,7 @@ export default defineConfig({
   dts: false,
   splitting: false,
   shims: true,
+  // puppeteer is an optional lazy-install dep; keep it external so esbuild
+  // doesn't try to bundle Chromium or its transitive deps (cosmiconfig etc.)
+  external: ["puppeteer"],
 });

@@ -234,3 +234,9 @@ export const AssetsValidateDimensionsSchema = z.object({
   locale: z.string().optional().describe("Restrict to one locale"),
   platform: z.string().optional().describe("Restrict to one platform (default: ios)"),
 });
+
+export const AssetsRenderTemplateSchema = z.object({
+  locale: z.string().describe("Locale to render for (e.g., en-US)"),
+  platform: z.string().describe("Platform (ios)"),
+  device: z.string().describe("Device key (e.g., iphone-6.7)"),
+});
