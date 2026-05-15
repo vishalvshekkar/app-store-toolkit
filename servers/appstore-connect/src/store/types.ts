@@ -248,3 +248,30 @@ export interface AssetsLock {
   screenshots: Record<string, AssetLockEntry[]>;
   previews: Record<string, AssetLockEntry[]>;
 }
+
+export type ShipPhase =
+  | "audit"
+  | "push-metadata"
+  | "push-listing"
+  | "push-privacy"
+  | "push-review"
+  | "push-assets"
+  | "attach-build"
+  | "submit";
+
+export interface ShipWaiver {
+  check: string;
+  target: string;
+  reason?: string;
+  waived_at: string;
+}
+
+export interface ShipState {
+  schema_version: 1;
+  version: string;
+  started_at: string;
+  current_phase: ShipPhase;
+  completed_phases: ShipPhase[];
+  audit_findings_ref: string | null;
+  waivers: ShipWaiver[];
+}
