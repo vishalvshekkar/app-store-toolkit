@@ -203,3 +203,12 @@ export const AscUploadScreenshotSchema = z.object({
   platform: z.string().describe("Platform (used for the lock entry)"),
   device: z.string().describe("Human-readable device key (e.g., iphone-6.7)"),
 });
+
+export const AscUploadAppPreviewSchema = z.object({
+  set_id: z.string().describe("The appPreviewSet resource ID"),
+  file_path: z.string().describe("Absolute or repo-relative path to the MP4"),
+  locale: z.string(),
+  platform: z.string(),
+  device: z.string(),
+  cover_frame_seconds: z.number().optional().describe("Cover frame timestamp in seconds"),
+});

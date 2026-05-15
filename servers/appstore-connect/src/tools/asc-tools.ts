@@ -34,6 +34,12 @@ import {
   putScreenshotBytes,
   commitScreenshot,
 } from "../api/screenshots.js";
+import {
+  reserveAppPreview,
+  commitAppPreview,
+  secondsToTimeCode,
+} from "../api/app-previews.js";
+import { readMp4Dimensions } from "../util/dimensions.js";
 import { appendHistoryEntry } from "../store/history.js";
 import { readAssetsLock, writeAssetsLock, emptyAssetsLock } from "../store/assets-lock.js";
 import { readPngDimensions } from "../util/dimensions.js";
@@ -47,6 +53,7 @@ import {
   AscSetReviewInfoSchema,
   AscSetEncryptionComplianceSchema,
   AscUploadScreenshotSchema,
+  AscUploadAppPreviewSchema,
 } from "./schemas.js";
 import { hasCredentials } from "../auth/jwt.js";
 
@@ -957,6 +964,128 @@ export function registerAscTools(server: McpServer): void {
         } catch {
           /* history is best-effort */
         }
+
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: JSON.stringify(
+                { uploaded: true, asc_id: reserved.id, file: fileName, sha256 },
+                null, 2
+              ),
+            },
+          ],
+        };
+      } catch (e: any) {
+        return {
+          content: [{ type: "text" as const, text: `Error: ${e.message}` }],
+          isError: true,
+        };
+      }
+    }
+  );
+
+  // --- asc_upload_app_preview ---
+  server.tool(
+    "asc_upload_app_preview",
+    "Upload an MP4 App Preview to ASC and update the lock",
+    AscUploadAppPreviewSchema.shape,
+    async ({ set_id, file_path, locale, platform, device, cover_frame_seconds }) => {
+      try {
+        if (!(await hasCredentials())) return noCredentialsError();
+        if (!existsSync(file_path)) {
+          return errorPayload({
+            code: "FILE_NOT_FOUND", field: "preview",
+            locale, device, file: basename(file_path),
+            message: `File not found: ${file_path}`,
+            remediation: "Check the file path.",
+          });
+        }
+        const bytes = await readFile(file_path);
+        const dim = await readMp4Dimensions(file_path);
+        const spec = getSpec(platform as Platform, device as DeviceKey);
+        const ok = spec.previewDimensions.some(
+          (d) => d.width === dim.width && d.height === dim.height
+        );
+        if (!ok) {
+          return errorPayload({
+            code: "DIMENSION_MISMATCH", field: "preview",
+            locale, device, file: basename(file_path),
+            message: `${dim.width}×${dim.height} does not match ${device} expected preview sizes`,
+            remediation: `Re-encode to ${spec.previewDimensions.map((d) => `${d.width}×${d.height}`).join(" or ")}.`,
+          });
+        }
+        const sha256 = createHash("sha256").update(bytes).digest("hex");
+        const md5 = createHash("md5").update(bytes).digest("hex");
+        const fileName = basename(file_path);
+        const fileSize = (await stat(file_path)).size;
+
+        let reserved;
+        try {
+          reserved = await reserveAppPreview({
+            setId: set_id, fileName, fileSize, mimeType: "video/mp4",
+          });
+        } catch (e: any) {
+          return errorPayload({
+            code: "ASC_RESERVE_FAILED", field: "preview", step: "reserve",
+            locale, device, file: fileName,
+            message: e.message,
+            remediation: "Check the preview set ID and ASC permissions.",
+          });
+        }
+
+        try {
+          for (const op of reserved.uploadOperations) {
+            await putScreenshotBytes(op, bytes);
+          }
+        } catch (e: any) {
+          return errorPayload({
+            code: "ASC_PUT_FAILED", field: "preview", step: "upload",
+            locale, device, file: fileName,
+            message: e.message,
+            remediation: "Retry; the signed URL may have expired.",
+          });
+        }
+
+        try {
+          const timeCode = cover_frame_seconds !== undefined
+            ? secondsToTimeCode(cover_frame_seconds)
+            : undefined;
+          await commitAppPreview(reserved.id, md5, timeCode);
+        } catch (e: any) {
+          return errorPayload({
+            code: "ASC_COMMIT_FAILED", field: "preview", step: "commit",
+            locale, device, file: fileName,
+            message: e.message,
+            remediation: "Retry the upload.",
+          });
+        }
+
+        const lock = (await readAssetsLock(locale, platform)) ?? emptyAssetsLock();
+        const list = (lock.previews[device] ??= []);
+        const existing = list.findIndex((e) => e.file === fileName);
+        const entry = {
+          file: fileName,
+          sha256,
+          asc_id: reserved.id,
+          asc_checksum_md5: md5,
+          width: dim.width,
+          height: dim.height,
+          cover_frame_seconds,
+          uploaded_at: new Date().toISOString(),
+        };
+        if (existing >= 0) list[existing] = entry;
+        else list.push(entry);
+        await writeAssetsLock(locale, platform, lock);
+
+        try {
+          await appendHistoryEntry("pushes", {
+            tool: "asc_upload_app_preview",
+            target: { set_id, locale, platform, device, file: fileName },
+            payload: { fileSize, sha256, asc_id: reserved.id, cover_frame_seconds },
+            result: "success",
+          });
+        } catch { /* best-effort */ }
 
         return {
           content: [
