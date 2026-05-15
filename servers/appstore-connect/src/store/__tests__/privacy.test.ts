@@ -85,4 +85,12 @@ describe("privacy store", () => {
     };
     await expect(writePrivacy(bad)).rejects.toThrow(/purpose/);
   });
+
+  it("throws a helpful error when privacy.json is malformed JSON", async () => {
+    const { writeFile, mkdir } = await import("node:fs/promises");
+    const { join } = await import("node:path");
+    await mkdir(join(tempDir, ".appstore"), { recursive: true });
+    await writeFile(join(tempDir, ".appstore", "privacy.json"), "{ broken", "utf-8");
+    await expect(readPrivacy()).rejects.toThrow(/privacy\.json is not valid JSON/);
+  });
 });

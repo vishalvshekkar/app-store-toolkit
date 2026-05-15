@@ -1,5 +1,4 @@
 import { readFile, writeFile } from "node:fs/promises";
-import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { z } from "zod";
 import { ensureAppstoreDir, getAppstoreDir } from "./config.js";
@@ -37,9 +36,18 @@ function getReviewPath(): string {
 
 export async function readReview(): Promise<ReviewInfo | null> {
   const path = getReviewPath();
-  if (!existsSync(path)) return null;
-  const raw = await readFile(path, "utf-8");
-  return JSON.parse(raw) as ReviewInfo;
+  let raw: string;
+  try {
+    raw = await readFile(path, "utf-8");
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code === "ENOENT") return null;
+    throw err;
+  }
+  try {
+    return JSON.parse(raw) as ReviewInfo;
+  } catch (err) {
+    throw new Error(`${path} is not valid JSON: ${(err as Error).message}`);
+  }
 }
 
 export async function writeReview(cfg: ReviewInfo): Promise<void> {

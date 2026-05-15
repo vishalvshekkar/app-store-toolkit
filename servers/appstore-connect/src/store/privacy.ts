@@ -1,5 +1,4 @@
 import { readFile, writeFile } from "node:fs/promises";
-import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { z } from "zod";
 import { ensureAppstoreDir, getAppstoreDir } from "./config.js";
@@ -48,9 +47,18 @@ function getPrivacyPath(): string {
 /** Read .appstore/privacy.json, or null if missing */
 export async function readPrivacy(): Promise<PrivacyResponses | null> {
   const path = getPrivacyPath();
-  if (!existsSync(path)) return null;
-  const raw = await readFile(path, "utf-8");
-  return JSON.parse(raw) as PrivacyResponses;
+  let raw: string;
+  try {
+    raw = await readFile(path, "utf-8");
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code === "ENOENT") return null;
+    throw err;
+  }
+  try {
+    return JSON.parse(raw) as PrivacyResponses;
+  } catch (err) {
+    throw new Error(`${path} is not valid JSON: ${(err as Error).message}`);
+  }
 }
 
 /** Write .appstore/privacy.json after schema validation */

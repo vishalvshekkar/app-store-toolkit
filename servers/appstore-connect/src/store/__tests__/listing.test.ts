@@ -43,4 +43,12 @@ describe("listing store", () => {
     expect(d.availability.territories).toContain("US");
     expect(d.encryption.usesEncryption).toBe(false);
   });
+
+  it("throws a helpful error when listing.json is malformed JSON", async () => {
+    const { writeFile, mkdir } = await import("node:fs/promises");
+    const { join } = await import("node:path");
+    await mkdir(join(tempDir, ".appstore"), { recursive: true });
+    await writeFile(join(tempDir, ".appstore", "listing.json"), "{ not json", "utf-8");
+    await expect(readListing()).rejects.toThrow(/listing\.json is not valid JSON/);
+  });
 });

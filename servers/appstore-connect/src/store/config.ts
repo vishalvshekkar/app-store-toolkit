@@ -51,9 +51,18 @@ export async function ensureAppstoreDir(): Promise<void> {
 /** Read the main config */
 export async function readConfig(): Promise<AppConfig | null> {
   const configPath = join(getAppstoreDir(), CONFIG_FILE);
-  if (!existsSync(configPath)) return null;
-  const raw = await readFile(configPath, "utf-8");
-  return JSON.parse(raw) as AppConfig;
+  let raw: string;
+  try {
+    raw = await readFile(configPath, "utf-8");
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code === "ENOENT") return null;
+    throw err;
+  }
+  try {
+    return JSON.parse(raw) as AppConfig;
+  } catch (err) {
+    throw new Error(`${configPath} is not valid JSON: ${(err as Error).message}`);
+  }
 }
 
 /** Write the main config */
@@ -66,9 +75,18 @@ export async function writeConfig(config: AppConfig): Promise<void> {
 /** Read the local (secret) config */
 export async function readLocalConfig(): Promise<LocalConfig | null> {
   const configPath = join(getAppstoreDir(), LOCAL_CONFIG_FILE);
-  if (!existsSync(configPath)) return null;
-  const raw = await readFile(configPath, "utf-8");
-  return JSON.parse(raw) as LocalConfig;
+  let raw: string;
+  try {
+    raw = await readFile(configPath, "utf-8");
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code === "ENOENT") return null;
+    throw err;
+  }
+  try {
+    return JSON.parse(raw) as LocalConfig;
+  } catch (err) {
+    throw new Error(`${configPath} is not valid JSON: ${(err as Error).message}`);
+  }
 }
 
 /** Write the local (secret) config */
@@ -120,9 +138,18 @@ export async function ensureIAPDir(locale: string): Promise<string> {
 /** Read the locales list */
 export async function readLocales(): Promise<string[]> {
   const localesPath = join(getMetadataDir(), "_locales.json");
-  if (!existsSync(localesPath)) return [];
-  const raw = await readFile(localesPath, "utf-8");
-  return JSON.parse(raw) as string[];
+  let raw: string;
+  try {
+    raw = await readFile(localesPath, "utf-8");
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code === "ENOENT") return [];
+    throw err;
+  }
+  try {
+    return JSON.parse(raw) as string[];
+  } catch (err) {
+    throw new Error(`${localesPath} is not valid JSON: ${(err as Error).message}`);
+  }
 }
 
 /** Write the locales list */

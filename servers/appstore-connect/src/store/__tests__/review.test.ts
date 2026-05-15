@@ -49,4 +49,12 @@ describe("review store", () => {
     expect(d.demo.required).toBe(false);
     expect(d.contact.email).toBe("");
   });
+
+  it("throws a helpful error when review.json is malformed JSON", async () => {
+    const { writeFile, mkdir } = await import("node:fs/promises");
+    const { join } = await import("node:path");
+    await mkdir(join(tempDir, ".appstore"), { recursive: true });
+    await writeFile(join(tempDir, ".appstore", "review.json"), "}}", "utf-8");
+    await expect(readReview()).rejects.toThrow(/review\.json is not valid JSON/);
+  });
 });
