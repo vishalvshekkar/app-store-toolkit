@@ -90,3 +90,31 @@ Call `store_read_review` for the local `ReviewInfo`. Compare against `appStoreRe
 ## URL fields drift (per locale)
 
 For each locale, compare local `marketingUrl`/`supportUrl`/`privacyPolicyUrl` against the corresponding ASC fields.
+
+## Assets status
+
+For each `locale × platform`:
+
+1. Call `store_read_assets_lock` for `{locale, platform}`.
+2. For each device key in the lock:
+   - For each entry in `screenshots[device]` (and `previews[device]`):
+     - If `entry.asc_id` is null → classify `remote-deleted`.
+     - Else if local file exists at `.appstore/assets/{platform}/{locale}/{device}/{screenshots|previews}/{file}`:
+       - If `entry.sha256` is null → classify `manifest-only` (local bytes never downloaded).
+       - Else hash the local file; if hash matches `entry.sha256` → `unchanged`, else → `local-changed`.
+     - Else (file absent on disk):
+       - If `entry.sha256` is null → `manifest-only`.
+       - Else (had bytes before, now gone) → `local-missing`.
+   - Also walk the filesystem under `.appstore/assets/{platform}/{locale}/{device}/{screenshots|previews}/` for files with no lock entry → classify each as `local-new`.
+
+### Output
+
+```
+assets:
+  143 unchanged
+  1 local-changed: en-US/ios/iphone-6.7/02-stats.png
+  0 local-new
+  0 manifest-only
+  0 remote-deleted
+  0 local-missing
+```
