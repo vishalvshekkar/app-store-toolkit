@@ -1,0 +1,20 @@
+{
+  "rules": [
+    {
+      "pattern": "\\b(diagnose|diagnosis)\\b",
+      "severity": "blocker",
+      "reason": "Medical claims trigger App Review escalation. Reword unless cleared with Apple.",
+      "ignore_inside": ["quotedTestimonial"]
+    },
+    {
+      "pattern": "\\bguarantee(s|d)?\\b",
+      "severity": "quality",
+      "reason": "Unconditional guarantees attract reviewer attention."
+    },
+    {
+      "pattern": "\\b(doctor[- ]ready|FDA[- ]approved)\\b",
+      "severity": "blocker",
+      "reason": "Regulatory claims need substantiation."
+    }
+  ]
+}
