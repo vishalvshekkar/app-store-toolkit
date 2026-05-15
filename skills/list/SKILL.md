@@ -29,6 +29,7 @@ Parse `$ARGUMENTS` to determine what to list. The first word is the type:
 - `changelog` or `release_notes` — List release note versions
 - `iap` — List IAP products with display names and descriptions
 - `locales` — Show configured locales with completion status
+- `assets` — Show a summary of screenshots and previews across all locales and devices
 - `history <field>` — Show full iteration history for a specific field
 - `listing` — show the contents of `.appstore/listing.json` (categories, age rating, pricing, availability, encryption)
 - `privacy` — show `.appstore/privacy.json` (App Privacy responses)
@@ -72,6 +73,27 @@ Include display_name and description with character counts.
 ### For `locales`:
 Call `store_list` with `type: "locales"`.
 Show each locale and whether it has content for key fields (name, description, keywords).
+
+### For `assets`:
+Call `store_list` with `type: "metadata"` and iterate over all configured locales and platforms.
+For each locale × device combination, read `assets.lock.json` via `store_read_assets_lock` and report the asset counts.
+
+Present results as a table grouped by locale, then device:
+```
+Locale   Device              Screenshots  Previews
+─────────────────────────────────────────────────
+en-US    ios/iphone-6.7             3           1
+         ios/iphone-6.5             3           0
+         ios/ipad-7                 3           1
+de-DE    ios/iphone-6.7             3           1
+         ios/iphone-6.5             3           0
+         ios/ipad-7                 3           1
+ja       ios/iphone-6.7             3           1
+         ios/iphone-6.5             0           0
+         ios/ipad-7                 2           1
+```
+
+If no assets exist for a locale × device, omit or show 0/0.
 
 ### For `history`:
 The second argument should be the field name (e.g., `history description`).
