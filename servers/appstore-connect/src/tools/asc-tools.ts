@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { readFile, stat } from "node:fs/promises";
+import { readFile, stat, readdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
-import { basename } from "node:path";
+import { basename, join, relative } from "node:path";
 import { createHash } from "node:crypto";
 import { getAppByBundleId, getApp } from "../api/apps.js";
 import {
@@ -47,7 +47,8 @@ import { readMp4Dimensions } from "../util/dimensions.js";
 import { appendHistoryEntry } from "../store/history.js";
 import { readAssetsLock, writeAssetsLock, emptyAssetsLock } from "../store/assets-lock.js";
 import { readPngDimensions } from "../util/dimensions.js";
-import { getSpec, type DeviceKey, type Platform } from "../data/asc-asset-specs.js";
+import { getSpec, listDevices, type DeviceKey, type Platform } from "../data/asc-asset-specs.js";
+import { getAppstoreDir } from "../store/config.js";
 import {
   AscSetCategoriesSchema,
   AscSetAgeRatingSchema,
@@ -62,6 +63,7 @@ import {
   AscListAppPreviewsSchema,
   AscDeleteScreenshotSchema,
   AscDeleteAppPreviewSchema,
+  AssetsValidateDimensionsSchema,
 } from "./schemas.js";
 import { hasCredentials } from "../auth/jwt.js";
 
@@ -1206,6 +1208,87 @@ export function registerAscTools(server: McpServer): void {
       } catch (e: any) {
         return { content: [{ type: "text" as const, text: `Error: ${e.message}` }], isError: true };
       }
+    }
+  );
+
+  // --- assets_validate_dimensions ---
+  server.tool(
+    "assets_validate_dimensions",
+    "Scan .appstore/assets/ and validate each file against the dimension catalog",
+    AssetsValidateDimensionsSchema.shape,
+    async ({ locale, platform }) => {
+      const plat = (platform ?? "ios") as Platform;
+      const assetsRoot = join(getAppstoreDir(), "assets", plat);
+      if (!existsSync(assetsRoot)) {
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: JSON.stringify(
+                { results: [], summary: { total: 0, ok: 0, failed: 0 } },
+                null, 2
+              ),
+            },
+          ],
+        };
+      }
+      const results: Array<{
+        file: string;
+        expected: { width: number; height: number }[];
+        actual: { width: number; height: number } | null;
+        ok: boolean;
+        reason?: string;
+      }> = [];
+      const locales = locale ? [locale] : await readdir(assetsRoot).catch(() => []);
+      for (const loc of locales) {
+        const locRoot = join(assetsRoot, loc);
+        if (!existsSync(locRoot)) continue;
+        for (const device of await readdir(locRoot)) {
+          const knownDevices = listDevices(plat);
+          if (!knownDevices.includes(device as DeviceKey)) continue;
+          const spec = getSpec(plat, device as DeviceKey);
+          for (const kind of ["screenshots", "previews"] as const) {
+            const folder = join(locRoot, device, kind);
+            if (!existsSync(folder)) continue;
+            for (const fname of await readdir(folder)) {
+              const fpath = join(folder, fname);
+              const expected = kind === "screenshots" ? spec.screenshotDimensions : spec.previewDimensions;
+              try {
+                const actual = kind === "screenshots"
+                  ? await readPngDimensions(fpath)
+                  : await readMp4Dimensions(fpath);
+                const ok = expected.some((d) => d.width === actual.width && d.height === actual.height);
+                results.push({
+                  file: relative(getAppstoreDir(), fpath),
+                  expected,
+                  actual,
+                  ok,
+                  reason: ok ? undefined
+                    : `expected ${expected.map((d) => `${d.width}×${d.height}`).join(" or ")}, got ${actual.width}×${actual.height}`,
+                });
+              } catch (e: any) {
+                results.push({
+                  file: relative(getAppstoreDir(), fpath),
+                  expected,
+                  actual: null,
+                  ok: false,
+                  reason: `parse error: ${e.message}`,
+                });
+              }
+            }
+          }
+        }
+      }
+      const summary = {
+        total: results.length,
+        ok: results.filter((r) => r.ok).length,
+        failed: results.filter((r) => !r.ok).length,
+      };
+      return {
+        content: [
+          { type: "text" as const, text: JSON.stringify({ results, summary }, null, 2) },
+        ],
+      };
     }
   );
 }

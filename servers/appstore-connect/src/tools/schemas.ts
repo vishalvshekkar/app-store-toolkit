@@ -229,3 +229,8 @@ export const AscDeleteScreenshotSchema = z.object({
 });
 
 export const AscDeleteAppPreviewSchema = AscDeleteScreenshotSchema;
+
+export const AssetsValidateDimensionsSchema = z.object({
+  locale: z.string().optional().describe("Restrict to one locale"),
+  platform: z.string().optional().describe("Restrict to one platform (default: ios)"),
+});
