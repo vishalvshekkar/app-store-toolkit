@@ -171,3 +171,33 @@ asc_set_review_info({
 ## Pushing per-locale URL fields
 
 When pushing each locale's content via `asc_update_version_localization`, include `marketingUrl` and `supportUrl` if present in the local metadata. When pushing each locale's `asc_update_app_info`, include `privacyPolicyUrl` if present.
+
+## Pushing assets (screenshots and App Preview videos)
+
+If `.appstore/assets/{platform}/` exists, also run the asset push phase. Skip with `--no-assets`. Force re-upload with `--force`.
+
+### Steps for each locale + platform + device
+
+1. For each `*.png` in `.appstore/assets/{platform}/{locale}/{device}/screenshots/` (sorted by basename):
+   a. Compute `local_sha = sha256(file bytes)`.
+   b. Call `store_read_assets_lock` for `{locale, platform}`.
+   c. Find the matching `lock_entry` by `file` name within `screenshots[device]`.
+   d. If `lock_entry` exists AND `lock_entry.sha256 === local_sha` AND `lock_entry.asc_id !== null`:
+      - Mark `unchanged`, skip upload.
+   e. Else:
+      - Discover the appScreenshotSet ID for this locale+platform+device. (Use `asc_get_version_localizations` and follow the relationship to the appScreenshotSets endpoint. For v1 the version locale's appScreenshotSets list contains exactly one set per device; pick the one whose `screenshotDisplayType` maps to the device's `ascDisplayTarget`.)
+      - Call `asc_upload_screenshot({ set_id, file_path, locale, platform, device })`.
+      - If `result.isError`, accumulate `{file, code, message, remediation}` into a failures list.
+      - Else, count as `uploaded`.
+2. Repeat for previews: for each `*.mp4` in `.appstore/assets/{platform}/{locale}/{device}/previews/`:
+   - Same logic, but read `cover_frame_seconds` from `assets.json` and pass it to `asc_upload_app_preview`.
+
+### Summary output
+
+```
+Asset push summary:
+═════════════════════════
+  143 unchanged, 1 changed, 0 failed
+```
+
+If any failures, surface the per-file structured errors with their `remediation` text.
