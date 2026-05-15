@@ -224,3 +224,27 @@ export interface PrivacyResponses {
   };
   dataTypes: DeclaredDataType[];
 }
+
+/** A single entry in assets.lock.json */
+export interface AssetLockEntry {
+  file: string;
+  /** sha256 of local file bytes; null when manifest-only pull and no local bytes yet */
+  sha256: string | null;
+  /** ASC asset id; null when asset has been remote-deleted */
+  asc_id: string | null;
+  /** ASC's sourceFileChecksum (MD5); used for /status drift when local bytes absent */
+  asc_checksum_md5: string | null;
+  width: number;
+  height: number;
+  /** previews only */
+  duration_seconds?: number;
+  cover_frame_seconds?: number;
+  uploaded_at: string;
+}
+
+/** assets.lock.json shape (per locale+platform file) */
+export interface AssetsLock {
+  schema_version: 1;
+  screenshots: Record<string, AssetLockEntry[]>;
+  previews: Record<string, AssetLockEntry[]>;
+}
