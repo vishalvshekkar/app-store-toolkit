@@ -29,6 +29,7 @@ import { setAppAvailability } from "../api/availability.js";
 import { replaceAppDataUsages } from "../api/privacy.js";
 import { setAppStoreReviewDetail } from "../api/review-info.js";
 import { setBuildEncryption } from "../api/encryption.js";
+import { listBuilds, attachBuildToVersion } from "../api/builds.js";
 import {
   listScreenshots,
   deleteScreenshot,
@@ -58,6 +59,8 @@ import {
   AscSetPrivacyResponsesSchema,
   AscSetReviewInfoSchema,
   AscSetEncryptionComplianceSchema,
+  AscListBuildsSchema,
+  AscAttachBuildSchema,
   AscUploadScreenshotSchema,
   AscUploadAppPreviewSchema,
   AscListScreenshotsSchema,
@@ -1347,6 +1350,22 @@ export function registerAscTools(server: McpServer): void {
           { type: "text" as const, text: JSON.stringify({ results, summary }, null, 2) },
         ],
       };
+    }
+  );
+
+  // --- asc_list_builds ---
+  server.tool(
+    "asc_list_builds",
+    "List TestFlight builds for an app with processing state",
+    AscListBuildsSchema.shape,
+    async ({ app_id }) => {
+      try {
+        if (!(await hasCredentials())) return noCredentialsError();
+        const builds = await listBuilds(app_id);
+        return { content: [{ type: "text" as const, text: JSON.stringify(builds, null, 2) }] };
+      } catch (e: any) {
+        return { content: [{ type: "text" as const, text: `Error: ${e.message}` }], isError: true };
+      }
     }
   );
 }

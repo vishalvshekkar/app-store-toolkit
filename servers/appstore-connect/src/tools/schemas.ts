@@ -246,3 +246,12 @@ export const StoreWriteShipStateSchema = z.object({
   state: z.unknown().describe("Full ShipState object to write"),
 });
 export const StoreClearShipStateSchema = z.object({});
+
+export const AscListBuildsSchema = z.object({
+  app_id: z.string().describe("The app's App Store Connect ID"),
+});
+
+export const AscAttachBuildSchema = z.object({
+  version_id: z.string().describe("The editable version's ID"),
+  build_id: z.string().describe("The build's ID (must be VALID)"),
+});
