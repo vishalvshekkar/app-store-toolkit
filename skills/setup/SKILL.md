@@ -166,3 +166,37 @@ Setup complete!
 Suggest next steps based on what was configured:
    - If API configured: "Run `/app-store-toolkit:pull` to fetch your current App Store metadata"
    - Always: "Run `/app-store-toolkit:aso` to generate ASO-optimized metadata"
+
+## Asset setup
+
+Ask the user three questions:
+
+1. **"Use Git LFS for `.appstore/assets/`?"** (default: yes)
+   - If yes:
+     - Check whether `git lfs install` has been run (look for hooks). If not, run it via Bash.
+     - Append to `.gitattributes` (creating if missing):
+       ```
+       .appstore/assets/**/*.png filter=lfs diff=lfs merge=lfs -text
+       .appstore/assets/**/*.mp4 filter=lfs diff=lfs merge=lfs -text
+       ```
+
+2. **"Seed starter HTML templates in `.appstore/templates/`?"** (default: no — most users bring their own pipeline)
+   - If yes, for each device key (`iphone-6.7`, `iphone-6.5`, `iphone-5.5`, `ipad-pro-12.9`, `ipad-pro-11`), write a minimal `screenshot-{device}.html`:
+     ```html
+     <html>
+       <head><style>
+         body { margin:0; font-family: -apple-system, sans-serif; }
+         .frame { width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; background: #f5f5f7; }
+         h1 { font-size: 90px; text-align: center; max-width: 80%; }
+       </style></head>
+       <body><div class="frame"><h1>{{headline}}</h1></div></body>
+     </html>
+     ```
+
+3. **Warn if `.appstore/assets/` is gitignored.** Read `.gitignore`. If any line matches `.appstore/assets`, print:
+   ```
+   ⚠ .appstore/assets/ is gitignored. The toolkit's pillar is that every listing
+     change is git-tracked. Consider removing this entry and using Git LFS instead.
+   ```
+
+Also ensure `.appstore/ship-state.json` and `.appstore/config.local.json` remain in `.gitignore` (the M1 logic already covers these).
