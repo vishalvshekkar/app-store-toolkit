@@ -195,3 +195,11 @@ export const StoreWriteAssetsLockSchema = z.object({
   platform: z.string().describe("Platform"),
   lock: z.unknown().describe("Full AssetsLock object to write"),
 });
+
+export const AscUploadScreenshotSchema = z.object({
+  set_id: z.string().describe("The appScreenshotSet resource ID"),
+  file_path: z.string().describe("Absolute or repo-relative path to the PNG"),
+  locale: z.string().describe("Locale (used for the lock entry, not the upload)"),
+  platform: z.string().describe("Platform (used for the lock entry)"),
+  device: z.string().describe("Human-readable device key (e.g., iphone-6.7)"),
+});

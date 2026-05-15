@@ -1,5 +1,9 @@
 import { z } from "zod";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { readFile, stat } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { basename } from "node:path";
+import { createHash } from "node:crypto";
 import { getAppByBundleId, getApp } from "../api/apps.js";
 import {
   getAppInfos,
@@ -25,7 +29,15 @@ import { setAppAvailability } from "../api/availability.js";
 import { replaceAppDataUsages } from "../api/privacy.js";
 import { setAppStoreReviewDetail } from "../api/review-info.js";
 import { setBuildEncryption } from "../api/encryption.js";
+import {
+  reserveScreenshot,
+  putScreenshotBytes,
+  commitScreenshot,
+} from "../api/screenshots.js";
 import { appendHistoryEntry } from "../store/history.js";
+import { readAssetsLock, writeAssetsLock, emptyAssetsLock } from "../store/assets-lock.js";
+import { readPngDimensions } from "../util/dimensions.js";
+import { getSpec, type DeviceKey, type Platform } from "../data/asc-asset-specs.js";
 import {
   AscSetCategoriesSchema,
   AscSetAgeRatingSchema,
@@ -34,6 +46,7 @@ import {
   AscSetPrivacyResponsesSchema,
   AscSetReviewInfoSchema,
   AscSetEncryptionComplianceSchema,
+  AscUploadScreenshotSchema,
 } from "./schemas.js";
 import { hasCredentials } from "../auth/jwt.js";
 
@@ -838,4 +851,151 @@ export function registerAscTools(server: McpServer): void {
       }
     }
   );
+
+  // --- asc_upload_screenshot ---
+  server.tool(
+    "asc_upload_screenshot",
+    "Upload a PNG screenshot to ASC via reserve → PUT → commit and update the lock",
+    AscUploadScreenshotSchema.shape,
+    async ({ set_id, file_path, locale, platform, device }) => {
+      try {
+        if (!(await hasCredentials())) return noCredentialsError();
+
+        if (!existsSync(file_path)) {
+          return errorPayload({
+            code: "FILE_NOT_FOUND",
+            field: "screenshot",
+            locale, device, file: basename(file_path),
+            message: `File not found: ${file_path}`,
+            remediation: "Check the file path is correct and the file exists.",
+          });
+        }
+
+        const bytes = await readFile(file_path);
+        const dim = await readPngDimensions(file_path);
+        const spec = getSpec(platform as Platform, device as DeviceKey);
+        const dimensionOk = spec.screenshotDimensions.some(
+          (d) => d.width === dim.width && d.height === dim.height
+        );
+        if (!dimensionOk) {
+          return errorPayload({
+            code: "DIMENSION_MISMATCH",
+            field: "screenshot",
+            locale, device, file: basename(file_path),
+            message: `${dim.width}×${dim.height} does not match ${device} expected sizes`,
+            remediation: `Resize to ${spec.screenshotDimensions.map((d) => `${d.width}×${d.height}`).join(" or ")}, or use a different device folder.`,
+          });
+        }
+
+        const sha256 = createHash("sha256").update(bytes).digest("hex");
+        const md5 = createHash("md5").update(bytes).digest("hex");
+        const fileName = basename(file_path);
+        const fileSize = (await stat(file_path)).size;
+
+        let reserved;
+        try {
+          reserved = await reserveScreenshot({ setId: set_id, fileName, fileSize });
+        } catch (e: any) {
+          return errorPayload({
+            code: "ASC_RESERVE_FAILED",
+            field: "screenshot", step: "reserve",
+            locale, device, file: fileName,
+            message: e.message,
+            remediation: "Check the screenshot set ID and ASC permissions.",
+          });
+        }
+
+        try {
+          for (const op of reserved.uploadOperations) {
+            await putScreenshotBytes(op, bytes);
+          }
+        } catch (e: any) {
+          return errorPayload({
+            code: "ASC_PUT_FAILED",
+            field: "screenshot", step: "upload",
+            locale, device, file: fileName,
+            message: e.message,
+            remediation: "Retry; the ASC signed URL may have expired.",
+          });
+        }
+
+        try {
+          await commitScreenshot(reserved.id, md5);
+        } catch (e: any) {
+          return errorPayload({
+            code: "ASC_COMMIT_FAILED",
+            field: "screenshot", step: "commit",
+            locale, device, file: fileName,
+            message: e.message,
+            remediation: "Retry the upload from scratch.",
+          });
+        }
+
+        const lock = (await readAssetsLock(locale, platform)) ?? emptyAssetsLock();
+        const list = (lock.screenshots[device] ??= []);
+        const existing = list.findIndex((e) => e.file === fileName);
+        const entry = {
+          file: fileName,
+          sha256,
+          asc_id: reserved.id,
+          asc_checksum_md5: md5,
+          width: dim.width,
+          height: dim.height,
+          uploaded_at: new Date().toISOString(),
+        };
+        if (existing >= 0) list[existing] = entry;
+        else list.push(entry);
+        await writeAssetsLock(locale, platform, lock);
+
+        try {
+          await appendHistoryEntry("pushes", {
+            tool: "asc_upload_screenshot",
+            target: { set_id, locale, platform, device, file: fileName },
+            payload: { fileSize, sha256, asc_id: reserved.id },
+            result: "success",
+          });
+        } catch {
+          /* history is best-effort */
+        }
+
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: JSON.stringify(
+                { uploaded: true, asc_id: reserved.id, file: fileName, sha256 },
+                null, 2
+              ),
+            },
+          ],
+        };
+      } catch (e: any) {
+        return {
+          content: [{ type: "text" as const, text: `Error: ${e.message}` }],
+          isError: true,
+        };
+      }
+    }
+  );
+}
+
+function errorPayload(err: {
+  code: string;
+  field: string;
+  step?: string;
+  locale: string;
+  device: string;
+  file: string;
+  message: string;
+  remediation: string;
+}) {
+  return {
+    content: [
+      {
+        type: "text" as const,
+        text: JSON.stringify(err, null, 2),
+      },
+    ],
+    isError: true,
+  };
 }
