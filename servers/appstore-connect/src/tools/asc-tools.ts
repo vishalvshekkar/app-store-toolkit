@@ -63,6 +63,7 @@ import {
   AscListBuildsSchema,
   AscAttachBuildSchema,
   AscSetReleaseStrategySchema,
+  AscCreateVersionSchema,
   AscUploadScreenshotSchema,
   AscUploadAppPreviewSchema,
   AscListScreenshotsSchema,
@@ -1416,6 +1417,32 @@ export function registerAscTools(server: McpServer): void {
         } catch { /* best-effort */ }
         return {
           content: [{ type: "text" as const, text: `Release strategy set to ${strategy.type}` }],
+        };
+      } catch (e: any) {
+        return { content: [{ type: "text" as const, text: `Error: ${e.message}` }], isError: true };
+      }
+    }
+  );
+
+  // --- asc_create_version ---
+  server.tool(
+    "asc_create_version",
+    "Create a new editable App Store version (for v1.1+ releases)",
+    AscCreateVersionSchema.shape,
+    async ({ app_id, version_string, platform }) => {
+      try {
+        if (!(await hasCredentials())) return noCredentialsError();
+        const result = await createVersion({ appId: app_id, versionString: version_string, platform });
+        try {
+          await appendHistoryEntry("pushes", {
+            tool: "asc_create_version",
+            target: { app_id, version_id: result.id },
+            payload: { version_string, platform },
+            result: "success",
+          });
+        } catch { /* best-effort */ }
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify(result, null, 2) }],
         };
       } catch (e: any) {
         return { content: [{ type: "text" as const, text: `Error: ${e.message}` }], isError: true };

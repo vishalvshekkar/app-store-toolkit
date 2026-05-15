@@ -265,3 +265,9 @@ export const AscSetReleaseStrategySchema = z.object({
     z.object({ type: z.literal("PHASED") }),
   ]),
 });
+
+export const AscCreateVersionSchema = z.object({
+  app_id: z.string(),
+  version_string: z.string().describe("Semantic version like '1.1.0'"),
+  platform: z.enum(["IOS", "MAC_OS", "TV_OS"]).default("IOS"),
+});
