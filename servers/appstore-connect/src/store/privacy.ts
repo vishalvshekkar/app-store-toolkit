@@ -12,7 +12,7 @@ const DeclaredDataTypeSchema = z.object({
   type: DataFieldSchema,
   linkedToUser: z.boolean(),
   usedForTracking: z.boolean(),
-  purposes: z.array(PurposeSchema),
+  purposes: z.array(PurposeSchema).min(1, "at least one purpose required per declared dataType"),
 });
 
 const PrivacyResponsesSchema = z
@@ -30,6 +30,13 @@ const PrivacyResponsesSchema = z
         code: z.ZodIssueCode.custom,
         message:
           "collectsData is false but dataTypes is non-empty — set collectsData true or empty the list",
+      });
+    }
+    if (!val.tracking.enabled && val.tracking.domains.length > 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          "tracking.enabled is false but domains is non-empty — set enabled true or clear the domains list",
       });
     }
   });

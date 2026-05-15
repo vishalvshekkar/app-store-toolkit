@@ -65,4 +65,24 @@ describe("privacy store", () => {
     expect(d.dataTypes).toEqual([]);
     expect(d.tracking.enabled).toBe(false);
   });
+
+  it("rejects tracking.enabled=false with non-empty domains", async () => {
+    const bad: PrivacyResponses = {
+      collectsData: false,
+      tracking: { enabled: false, domains: ["analytics.example.com"] },
+      dataTypes: [],
+    };
+    await expect(writePrivacy(bad)).rejects.toThrow(/tracking/);
+  });
+
+  it("rejects a declared dataType with empty purposes", async () => {
+    const bad: PrivacyResponses = {
+      collectsData: true,
+      tracking: { enabled: false, domains: [] },
+      dataTypes: [
+        { type: "CRASH_DATA", linkedToUser: false, usedForTracking: false, purposes: [] },
+      ],
+    };
+    await expect(writePrivacy(bad)).rejects.toThrow(/purpose/);
+  });
 });
