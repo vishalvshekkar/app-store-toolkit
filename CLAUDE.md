@@ -28,15 +28,22 @@ App-level decisions and per-locale content live in `.appstore/`. Every committed
 .appstore/
   config.json              ✅ committed — bundle id, locales, voice
   config.local.json        🚫 gitignored — credentials only
-  listing.json             ✅ NEW — categories, age rating, pricing, availability, encryption defaults
-  privacy.json             ✅ NEW — App Privacy questionnaire responses (taxonomy-validated)
-  review.json              ✅ NEW — App Review information (contact, demo creds, notes)
-  metadata/{locale}/...    ✅ per-locale content; URL fields live here
-  history/                 ✅ NEW append-only audit log
+  listing.json             ✅ committed — categories, age rating, pricing, availability, encryption defaults
+  privacy.json             ✅ committed — App Privacy questionnaire responses (taxonomy-validated)
+  review.json              ✅ committed — App Review information (contact, demo creds, notes)
+  metadata/{locale}/...    ✅ committed — per-locale content; URL fields live here
+    assets.json            ✅ NEW — per-file headlines, cover frames
+    assets.lock.json       ✅ NEW — sha/asc_id cache (committed for idempotency)
+  assets/                  ✅ NEW — per-locale screenshots and app previews (use Git LFS)
+    {platform}/{locale}/{device}/
+      screenshots/         # 01.png, 02.png, ...
+      previews/            # 01.mp4, 02.mp4, ...
+  templates/               ✅ NEW — optional Puppeteer-based screenshot renderer (opt-in install)
+  history/                 ✅ committed — append-only audit log
     pushes.jsonl           # one line per ASC mutation: timestamp, tool, payload, result
     submissions.jsonl      # M3
     audits.jsonl           # M3
-  ship-state.json          🚫 NEW gitignored transient — /ship checkpoint (M3)
+  ship-state.json          🚫 gitignored transient — /ship checkpoint (M3)
 ```
 
 Every mutating MCP tool (`asc_update_*`, `asc_set_*`) appends to `history/pushes.jsonl` automatically. `git log -p .appstore/history/` answers "what did we tell ASC and when."
@@ -99,6 +106,7 @@ When generating content, gather context from (priority order):
 | `/app-store-toolkit:competitors`| Analyze competitor App Store listings        |
 | `/app-store-toolkit:reviews`    | List reviews, draft and post responses       |
 | `/app-store-toolkit:privacy`    | Analyze code for App Privacy nutrition labels|
+| `/app-store-toolkit:render-screenshots` | Render screenshots from HTML templates via Puppeteer (lazy install) |
 
 ## Plugin & Marketplace Distribution
 

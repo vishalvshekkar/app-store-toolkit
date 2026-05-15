@@ -131,7 +131,14 @@ The plugin keeps everything it knows about your listing in `.appstore/`. Commit 
 ├── privacy.json             # App Privacy questionnaire responses
 ├── review.json              # App Review contact, demo creds, notes
 ├── metadata/                # Per-locale name, subtitle, keywords, description, etc.
-├── assets/                  # Screenshots, app previews (use Git LFS for large files)
+│   └── {locale}/
+│       ├── assets.json      # Per-file headlines, cover frames
+│       └── assets.lock.json # sha/asc_id cache (committed)
+├── assets/                  # Screenshots and app previews (use Git LFS for large files)
+│   └── {platform}/{locale}/{device}/
+│       ├── screenshots/     # 01.png, 02.png, ...
+│       └── previews/        # 01.mp4, 02.mp4, ...
+├── templates/               # Optional Puppeteer-based screenshot renderer
 └── history/
     └── pushes.jsonl         # Append-only audit log of every ASC mutation
 ```
@@ -144,6 +151,9 @@ Your App Privacy "nutrition label" answers — whether you collect data, which d
 
 ### App Review info (`review.json`)
 The contact, demo credentials, and reviewer notes that App Store Connect requires for review. Passwords are redacted from the audit log on push.
+
+### Assets (screenshots & app previews)
+Per-locale screenshot and App Preview management. Strict per-locale directory layout under `.appstore/assets/`, with a committed `assets.lock.json` cache that makes `/push` idempotent (skip-unchanged via sha256). Optional Puppeteer-based template renderer installs on first use.
 
 ### Audit log (`.appstore/history/pushes.jsonl`)
 Every mutating call to App Store Connect appends one JSON line to `pushes.jsonl` — tool name, inputs, result or error, and timestamp. Because the file is committed, `git log -p .appstore/history/pushes.jsonl` answers "what did we tell ASC, and when?" Audit writes are best-effort and never mask the underlying API result. (`submissions.jsonl` and `audits.jsonl` are reserved for a later milestone.)
