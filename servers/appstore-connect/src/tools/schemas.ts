@@ -255,3 +255,13 @@ export const AscAttachBuildSchema = z.object({
   version_id: z.string().describe("The editable version's ID"),
   build_id: z.string().describe("The build's ID (must be VALID)"),
 });
+
+export const AscSetReleaseStrategySchema = z.object({
+  version_id: z.string().describe("The editable version's ID"),
+  strategy: z.discriminatedUnion("type", [
+    z.object({ type: z.literal("AFTER_APPROVAL") }),
+    z.object({ type: z.literal("MANUAL") }),
+    z.object({ type: z.literal("SCHEDULED"), earliestReleaseDate: z.string() }),
+    z.object({ type: z.literal("PHASED") }),
+  ]),
+});

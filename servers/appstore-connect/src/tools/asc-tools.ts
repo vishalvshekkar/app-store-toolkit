@@ -30,6 +30,7 @@ import { replaceAppDataUsages } from "../api/privacy.js";
 import { setAppStoreReviewDetail } from "../api/review-info.js";
 import { setBuildEncryption } from "../api/encryption.js";
 import { listBuilds, attachBuildToVersion } from "../api/builds.js";
+import { setReleaseStrategy, createVersion } from "../api/release.js";
 import {
   listScreenshots,
   deleteScreenshot,
@@ -61,6 +62,7 @@ import {
   AscSetEncryptionComplianceSchema,
   AscListBuildsSchema,
   AscAttachBuildSchema,
+  AscSetReleaseStrategySchema,
   AscUploadScreenshotSchema,
   AscUploadAppPreviewSchema,
   AscListScreenshotsSchema,
@@ -1388,6 +1390,32 @@ export function registerAscTools(server: McpServer): void {
         } catch { /* best-effort */ }
         return {
           content: [{ type: "text" as const, text: `Attached build ${build_id} to version ${version_id}` }],
+        };
+      } catch (e: any) {
+        return { content: [{ type: "text" as const, text: `Error: ${e.message}` }], isError: true };
+      }
+    }
+  );
+
+  // --- asc_set_release_strategy ---
+  server.tool(
+    "asc_set_release_strategy",
+    "Set the release strategy on an editable version (AFTER_APPROVAL / MANUAL / SCHEDULED / PHASED)",
+    AscSetReleaseStrategySchema.shape,
+    async ({ version_id, strategy }) => {
+      try {
+        if (!(await hasCredentials())) return noCredentialsError();
+        await setReleaseStrategy(version_id, strategy as any);
+        try {
+          await appendHistoryEntry("pushes", {
+            tool: "asc_set_release_strategy",
+            target: { version_id },
+            payload: { strategy },
+            result: "success",
+          });
+        } catch { /* best-effort */ }
+        return {
+          content: [{ type: "text" as const, text: `Release strategy set to ${strategy.type}` }],
         };
       } catch (e: any) {
         return { content: [{ type: "text" as const, text: `Error: ${e.message}` }], isError: true };
