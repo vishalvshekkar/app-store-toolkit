@@ -76,7 +76,9 @@ import {
   AscDeleteAppPreviewSchema,
   AssetsValidateDimensionsSchema,
   AssetsRenderTemplateSchema,
+  AuditPrepareCrossSurfaceSchema,
 } from "./schemas.js";
+import { prepareCrossSurface } from "./audit-prepare.js";
 import { hasCredentials } from "../auth/jwt.js";
 
 function noCredentialsError() {
@@ -1568,6 +1570,23 @@ export function registerAscTools(server: McpServer): void {
         const state = await getSubmissionState(version_id);
         return {
           content: [{ type: "text" as const, text: JSON.stringify({ version_id, state }, null, 2) }],
+        };
+      } catch (e: any) {
+        return { content: [{ type: "text" as const, text: `Error: ${e.message}` }], isError: true };
+      }
+    }
+  );
+
+  // --- audit_prepare_cross_surface ---
+  server.tool(
+    "audit_prepare_cross_surface",
+    "Build the vision-audit prompt spec for a locale (pure function over the local store)",
+    AuditPrepareCrossSurfaceSchema.shape,
+    async ({ locale, platform }) => {
+      try {
+        const prepared = await prepareCrossSurface(locale, platform);
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify(prepared, null, 2) }],
         };
       } catch (e: any) {
         return { content: [{ type: "text" as const, text: `Error: ${e.message}` }], isError: true };

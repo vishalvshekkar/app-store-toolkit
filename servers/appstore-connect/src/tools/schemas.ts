@@ -281,3 +281,8 @@ export const AscSubmitForReviewSchema = z.object({
 export const AscGetSubmissionStateSchema = z.object({
   version_id: z.string(),
 });
+
+export const AuditPrepareCrossSurfaceSchema = z.object({
+  locale: z.string().describe("Locale code (e.g., en-US)"),
+  platform: z.string().describe("Platform (ios)"),
+});
