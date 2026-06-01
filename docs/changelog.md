@@ -6,6 +6,31 @@ For deployment details, see the [ROADMAP](../ROADMAP.md). For architecture overv
 
 ---
 
+## v0.4.1 — Guidance system + documentation site (2026-06-01)
+
+### Added
+
+**Skills**
+- `/app-store-toolkit:help` — state-aware guidance. With no arguments, reads `.appstore/` state and recommends the next concrete command; with a question, routes to the relevant docs page and answers in 3–6 sentences with a command to run.
+
+**Discoverability**
+- SessionStart hook now prints a second `→ Next: ...` line with a state-based recommendation (e.g., `→ Next: /app-store-toolkit:audit (no audit since last push)`). Silent and non-fatal when state can't be determined.
+- All 18 existing skills now end with a consistent `## Suggested next` / `## Related` footer pointing to the natural follow-on command and a docs page.
+
+**Documentation**
+- New `docs/` site (20 pages, ~9,500 lines): getting-started, 5 concept pages, 4 reference pages, 5 workflow guides, 2 contributing guides, roadmap, and changelog.
+- Root `README.md` slimmed to a landing page; `SPEC.md`, `CONTRIBUTING.md`, `ROADMAP.md` converted to redirect stubs into `docs/`.
+
+### Internal
+
+- No changes to the MCP server's runtime behavior beyond the SessionStart hook; all 119 tests still pass and the build is unchanged.
+
+### Known limitations
+
+- The App Store Connect tool layer is unit-tested with mocked HTTP/JWT but has **not** been exercised against a live ASC account. See `docs/contributing/live-asc-checklist.md` for the pre-production verification procedure.
+
+---
+
 ## v0.4.0 — M3: Submit + Audit + Ship (2026-05-15)
 
 ### Added

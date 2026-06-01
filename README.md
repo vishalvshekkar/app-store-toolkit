@@ -36,7 +36,9 @@ Or directly:
 
 ## Status
 
-Milestones M1 (fill every ASC field), M2 (assets), and M3 (submit + audit + ship) are complete at v0.4.0. Eight follow-on improvement rounds remain on the roadmap. See `ROADMAP.md` for details.
+Milestones M1 (fill every ASC field), M2 (assets), and M3 (submit + audit + ship) are complete at v0.4.1, which also adds the in-plugin guidance system (`/help`, state-aware session hints) and a full documentation site under `docs/`. Eight follow-on improvement rounds remain on the roadmap. See `ROADMAP.md` for details.
+
+> **Note:** the App Store Connect tools have full unit-test coverage (mocked) but have not yet been verified end-to-end against a live ASC account. See [docs/contributing/live-asc-checklist.md](docs/contributing/live-asc-checklist.md) before relying on them for a real submission.
 
 ## Contributing
 
