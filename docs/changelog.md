@@ -6,6 +6,14 @@ For deployment details, see the [ROADMAP](../ROADMAP.md). For architecture overv
 
 ---
 
+## v0.4.2 — Fix duplicate-hooks manifest error (2026-06-01)
+
+### Fixed
+
+- Removed the `hooks` field from `.claude-plugin/plugin.json`. Claude Code auto-loads a plugin's standard `hooks/hooks.json`; the explicit manifest reference caused the same file to load twice, which newer Claude Code versions reject with a "Duplicate hooks file detected" error. The error prevented **both** hooks (PostToolUse metadata validation and the SessionStart `→ Next` recommendation) from registering. The hooks now load correctly via the automatic standard path. No change to hook behavior or to `hooks/hooks.json` itself.
+
+---
+
 ## v0.4.1 — Guidance system + documentation site (2026-06-01)
 
 ### Added
